@@ -1,0 +1,873 @@
+/* =========================================================
+   REPORT ANALYZER
+   Relies on the design tokens (--color-*, --radius-*,
+   --shadow-*, --font-*) declared in :root inside index.css,
+   which is always loaded globally before this file.
+========================================================= */
+
+.report-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding-bottom: 100px;
+}
+
+/* --- header --- */
+
+.report-header {
+  position: relative;
+  text-align: center;
+  padding: 72px 24px 56px;
+  background: var(--color-bg-alt);
+  overflow: hidden;
+}
+
+.report-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 16px;
+  background-image: var(--pulse-line);
+  background-repeat: repeat-x;
+  background-size: 140px 28px;
+  opacity: 0.25;
+}
+
+.report-header-content {
+  position: relative;
+  max-width: 620px;
+  margin: auto;
+}
+
+.report-back-btn {
+  position: absolute;
+  left: 0;
+  top: -32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  transition: color var(--transition-fast);
+}
+
+.report-back-btn:hover {
+  color: var(--color-primary-dark);
+}
+
+.report-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-full);
+  margin-bottom: 20px;
+}
+
+.report-header-content h1 {
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  margin-bottom: 12px;
+}
+
+.report-header-content h1 span {
+  font-style: italic;
+  color: var(--color-primary);
+}
+
+.report-header-content p {
+  max-width: 46ch;
+  margin: auto;
+  color: var(--color-muted);
+}
+
+/* --- card shell --- */
+
+.report-wrapper {
+  width: 90%;
+  max-width: 640px;
+  margin: -36px auto 0;
+  position: relative;
+}
+
+.report-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+}
+
+.report-card-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.report-title-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  font-size: 1.3rem;
+}
+
+.report-card-title h2 {
+  font-size: 1.25rem;
+}
+
+.report-card-title p {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+/* --- upload dropzone --- */
+
+.report-upload-box {
+  position: relative;
+  text-align: center;
+  padding: 44px 24px;
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  transition: border-color var(--transition), background var(--transition);
+  margin-bottom: 20px;
+}
+
+.report-upload-box:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-lighter);
+}
+
+.report-upload-box.has-file {
+  border-style: solid;
+  border-color: var(--color-primary);
+  background: var(--color-primary-lighter);
+}
+
+.upload-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 1.3rem;
+}
+
+.report-upload-box h3 {
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.report-upload-box > p {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  max-width: 34ch;
+  margin: 0 auto 20px;
+}
+
+.report-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.report-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 26px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border-radius: var(--radius-full);
+  transition: background var(--transition), transform var(--transition);
+}
+
+.report-upload-btn:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.report-file-types {
+  display: block;
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+/* --- selected file row --- */
+
+.selected-file {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.selected-file-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-light);
+  font-size: 1.1rem;
+}
+
+.selected-file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.selected-file-info strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selected-file-info span {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.remove-file-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  font-size: 1rem;
+  transition: background var(--transition-fast);
+}
+
+.remove-file-btn:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* --- error --- */
+
+.report-error {
+  padding: 14px 18px;
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+}
+
+/* --- analyze button --- */
+
+.report-analyze-btn {
+  width: 100%;
+  padding: 17px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 20px;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.report-analyze-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.report-analyze-btn:disabled {
+  background: var(--color-border-strong);
+  color: var(--color-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* --- info box --- */
+
+.report-info-box {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-md);
+}
+
+.report-info-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-accent-dark);
+  font-size: 0.9rem;
+}
+
+.report-info-box strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  margin-bottom: 3px;
+}
+
+.report-info-box p {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 640px) {
+  .report-card {
+    padding: 28px 22px;
+  }
+
+  .report-back-btn {
+    position: static;
+    display: inline-flex;
+    margin-bottom: 16px;
+  }
+
+  .report-upload-box {
+    padding: 32px 18px;
+  }
+}
+/* =========================================================
+   REPORT ANALYSIS RESULTS
+========================================================= */
+
+.report-results {
+  margin-top: 34px;
+}
+
+
+/* =========================================================
+   RESULTS HEADER
+========================================================= */
+
+.report-results-header {
+  padding: 28px;
+  margin-bottom: 24px;
+
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-lighter),
+    var(--color-bg-alt)
+  );
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.report-results-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 7px 13px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+
+.report-results-header h2 {
+  margin-top: 14px;
+  margin-bottom: 7px;
+
+  font-size: 1.55rem;
+}
+
+.report-results-header p {
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   RESULT SECTION
+========================================================= */
+
+.report-result-section {
+  margin-bottom: 20px;
+
+  padding: 24px;
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.report-result-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 16px;
+}
+
+.report-result-section-title span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: var(--radius-sm);
+
+  background: var(--color-primary-light);
+
+  font-size: 1rem;
+}
+
+.report-result-section-title h3 {
+  margin: 0;
+
+  font-size: 1rem;
+}
+
+
+/* =========================================================
+   RESULT TEXT
+========================================================= */
+
+.report-result-text {
+  margin: 0;
+
+  color: var(--color-muted);
+
+  font-size: 0.9rem;
+
+  line-height: 1.75;
+
+  white-space: pre-line;
+}
+
+.report-explanation {
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   IMPORTANT VALUES
+========================================================= */
+
+.report-values-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-value-item {
+  display: grid;
+
+  grid-template-columns: 1fr auto auto;
+
+  align-items: center;
+
+  gap: 18px;
+
+  padding: 15px 16px;
+
+  background: var(--color-bg);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.report-value-item:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.report-value-name {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.report-value-result {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.report-value-status {
+  min-width: 70px;
+
+  padding: 6px 10px;
+
+  border-radius: var(--radius-full);
+
+  text-align: center;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.report-value-status.normal {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.report-value-status.high {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.report-value-status.low {
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+}
+
+
+/* =========================================================
+   RECOMMENDATIONS
+========================================================= */
+
+.report-recommendations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-recommendation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 14px 15px;
+
+  background: var(--color-bg);
+
+  border-radius: var(--radius-md);
+
+  border: 1px solid var(--color-border);
+}
+
+.report-recommendation-item > span {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--color-primary-light);
+
+  color: var(--color-primary-dark);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.report-recommendation-item p {
+  margin: 0;
+
+  color: var(--color-muted);
+
+  font-size: 0.86rem;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   ANALYSIS DISCLAIMER
+========================================================= */
+
+.report-analysis-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 18px;
+
+  margin-bottom: 20px;
+
+  background: var(--color-bg-alt);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+}
+
+.report-analysis-disclaimer > span {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--color-surface);
+
+  color: var(--color-accent-dark);
+
+  font-size: 0.85rem;
+}
+
+.report-analysis-disclaimer p {
+  margin: 0;
+
+  color: var(--color-muted);
+
+  font-size: 0.78rem;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   RESULTS BUTTON
+========================================================= */
+
+.report-results .report-analyze-btn {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   RESPONSIVE RESULTS
+========================================================= */
+
+@media (max-width: 640px) {
+
+  .report-results-header {
+    padding: 22px;
+  }
+
+  .report-result-section {
+    padding: 20px;
+  }
+
+  .report-value-item {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .report-value-result {
+    font-size: 0.82rem;
+  }
+
+  .report-value-status {
+    width: fit-content;
+  }
+
+}
+.ai-page {
+  padding: 120px 20px 80px;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-body);
+}
+
+.ai-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.ai-badge {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-body);
+  margin-bottom: 20px;
+}
+
+.ai-hero h1 {
+  font-size: 52px;
+  margin-bottom: 20px;
+  color: var(--color-ink);
+}
+
+.ai-hero span {
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+.ai-hero p {
+  max-width: 600px;
+  margin: auto;
+  color: var(--color-body);
+}
+
+.ai-card {
+  max-width: 900px;
+  margin: auto;
+  padding: 30px;
+  border-radius: 30px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.question-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.question-buttons button {
+  padding: 12px 18px;
+  border-radius: 30px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-body);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.question-buttons button:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.chat-box {
+  height: 500px;
+  overflow-y: auto;
+  padding: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: 25px;
+  margin: 25px 0;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chat-message {
+  max-width: 80%;
+  padding: 20px;
+  border-radius: 20px;
+  line-height: 1.8;
+  font-size: 16px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.chat-message.user {
+  margin-left: auto;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.chat-message.ai {
+  margin-right: auto;
+  background: var(--color-bg-alt);
+  color: var(--color-body);
+  border: 1px solid var(--color-border);
+}
+
+.input-section {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.input-section input {
+  flex: 1;
+  padding: 18px 25px;
+  border-radius: 40px;
+  border: 1px solid var(--color-border);
+  outline: none;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+.input-section input::placeholder {
+  color: var(--color-muted);
+}
+
+.input-section button {
+  padding: 15px 25px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.ai-warning {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+}

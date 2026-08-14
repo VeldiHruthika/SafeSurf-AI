@@ -1,0 +1,604 @@
+/* =========================================================
+   PHARMACY
+   Relies on the design tokens (--color-*, --radius-*,
+   --shadow-*, --font-*) declared in :root inside index.css,
+   which is always loaded globally before this file.
+========================================================= */
+
+.pharmacy-page {
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+
+/* --- hero --- */
+
+.pharmacy-hero {
+  position: relative;
+  text-align: center;
+  padding: 72px 24px 56px;
+  background: var(--color-bg-alt);
+  overflow: hidden;
+}
+
+.pharmacy-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 16px;
+  background-image: var(--pulse-line);
+  background-repeat: repeat-x;
+  background-size: 140px 28px;
+  opacity: 0.25;
+}
+
+.pharmacy-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-full);
+  margin-bottom: 20px;
+}
+
+.pharmacy-hero h1 {
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  margin-bottom: 12px;
+}
+
+.pharmacy-hero p {
+  max-width: 48ch;
+  margin: auto;
+  color: var(--color-muted);
+}
+
+/* --- content shell --- */
+
+.pharmacy-content {
+  width: 90%;
+  max-width: var(--container);
+  margin: -36px auto 0;
+  position: relative;
+  padding-bottom: 90px;
+}
+
+/* --- personalized symptom match banner --- */
+
+.symptom-match-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 26px 30px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 28px;
+}
+
+.symptom-match-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.symptom-match-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 1.1rem;
+}
+
+.symptom-match-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 4px;
+}
+
+.symptom-match-left h3 {
+  color: #fff;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.matched-symptoms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.matched-symptoms span {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.view-all-products-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  background: #fff;
+  color: var(--color-accent-dark);
+  font-weight: 600;
+  font-size: 0.88rem;
+  border-radius: var(--radius-full);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.view-all-products-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* --- search --- */
+
+.pharmacy-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 18px;
+  transition: border-color var(--transition);
+}
+
+.pharmacy-search:focus-within {
+  border-color: var(--color-primary);
+}
+
+.pharmacy-search span {
+  color: var(--color-muted);
+  font-size: 1.05rem;
+}
+
+.pharmacy-search input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+}
+
+.pharmacy-search input::placeholder {
+  color: var(--color-muted);
+}
+
+/* --- category filter --- */
+
+.pharmacy-categories {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin-bottom: 32px;
+}
+
+.pharmacy-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.pharmacy-category {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-body);
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.pharmacy-category:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.pharmacy-category.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* --- heading row --- */
+
+.pharmacy-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pharmacy-heading h2 {
+  font-size: 1.4rem;
+}
+
+.pharmacy-heading p {
+  margin-top: 4px;
+  font-size: 0.88rem;
+  color: var(--color-muted);
+}
+
+.pharmacy-heading > span {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+/* --- product grid --- */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 22px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
+}
+
+.product-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-bg-alt));
+}
+
+.product-image-icon {
+  font-size: 2.6rem;
+}
+
+.product-info {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-category {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary-dark);
+  margin-bottom: 10px;
+}
+
+.product-info h3 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.product-info > p {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.product-tags span {
+  padding: 4px 10px;
+  background: var(--color-bg-alt);
+  color: var(--color-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.product-footer small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+}
+
+.product-footer strong {
+  font-size: 0.85rem;
+  color: var(--color-ink);
+}
+
+.product-footer a {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  transition: color var(--transition-fast);
+}
+
+.product-footer a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* --- empty state --- */
+
+.no-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 70px 20px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.no-products-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-alt);
+  color: var(--color-muted);
+  font-size: 1.4rem;
+}
+
+.no-products h3 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.no-products p {
+  font-size: 0.88rem;
+  color: var(--color-muted);
+}
+
+/* --- disclaimer --- */
+
+.pharmacy-disclaimer {
+  width: 90%;
+  max-width: var(--container);
+  margin: 0 auto 80px;
+  padding: 22px 26px;
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+}
+
+.pharmacy-disclaimer strong {
+  display: block;
+  color: var(--color-ink);
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+  .symptom-match-banner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .view-all-products-btn {
+    justify-content: center;
+  }
+
+  .pharmacy-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+
+  .pharmacy-hero {
+    padding: 56px 20px 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.ai-page {
+  padding: 120px 20px 80px;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-body);
+}
+
+.ai-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.ai-badge {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-body);
+  margin-bottom: 20px;
+}
+
+.ai-hero h1 {
+  font-size: 52px;
+  margin-bottom: 20px;
+  color: var(--color-ink);
+}
+
+.ai-hero span {
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+.ai-hero p {
+  max-width: 600px;
+  margin: auto;
+  color: var(--color-body);
+}
+
+.ai-card {
+  max-width: 900px;
+  margin: auto;
+  padding: 30px;
+  border-radius: 30px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.question-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.question-buttons button {
+  padding: 12px 18px;
+  border-radius: 30px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-body);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.question-buttons button:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.chat-box {
+  height: 500px;
+  overflow-y: auto;
+  padding: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: 25px;
+  margin: 25px 0;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chat-message {
+  max-width: 80%;
+  padding: 20px;
+  border-radius: 20px;
+  line-height: 1.8;
+  font-size: 16px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.chat-message.user {
+  margin-left: auto;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.chat-message.ai {
+  margin-right: auto;
+  background: var(--color-bg-alt);
+  color: var(--color-body);
+  border: 1px solid var(--color-border);
+}
+
+.input-section {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.input-section input {
+  flex: 1;
+  padding: 18px 25px;
+  border-radius: 40px;
+  border: 1px solid var(--color-border);
+  outline: none;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+.input-section input::placeholder {
+  color: var(--color-muted);
+}
+
+.input-section button {
+  padding: 15px 25px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.ai-warning {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+}

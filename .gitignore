@@ -1,0 +1,20 @@
+# Root dependencies
+node_modules/
+
+# Ignore all node_modules inside subfolders
+**/node_modules/
+
+# Ignore environment files everywhere
+.env
+**/.env
+
+# Python cache
+__pycache__/
+**/__pycache__/
+
+# Build files
+dist/
+build/
+
+# Logs
+*.log

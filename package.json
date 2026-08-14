@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "lucide-react": "^1.31.0",
+    "multer": "^2.2.0",
+    "pdf-parse": "^2.4.5",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.18.2"
+  }
+}
