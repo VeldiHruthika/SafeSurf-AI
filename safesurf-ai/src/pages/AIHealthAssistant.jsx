@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./../styles/AIHealthAssistant.css";
 import suggestedQuestions from "../data/suggestedQuestions";
+import { API_BASE } from "../api";
 
 function AIHealthAssistant() {
   const [message, setMessage] = useState("");
@@ -30,7 +31,7 @@ function AIHealthAssistant() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/chat",
+        `${API_BASE}/api/chat`,
         {
           method: "POST",
 

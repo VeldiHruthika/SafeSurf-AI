@@ -38,7 +38,7 @@ function MainWebsite({ navProps, children }) {
         {children}
       </main>
 
-      <Footer />
+      <Footer {...navProps} />
 
     </div>
   );

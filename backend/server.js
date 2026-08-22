@@ -17,10 +17,17 @@ import {
   messagesStore,
 } from "./store.js";
 
-dotenv.config();
+// quiet: true suppresses dotenv's tip banner, which otherwise clutters
+// the log you read DEV OTP codes from.
+dotenv.config({ quiet: true });
 
 const app = express();
-const PORT = 5000;
+
+// macOS runs AirPlay Receiver on port 5000, which silently steals the
+// port and answers requests without CORS headers - the browser then
+// reports a generic "Network error". Default to 5050 to stay clear of
+// it, and allow an override for anyone who needs a different port.
+const PORT = Number(process.env.PORT) || 5050;
 
 // =====================================================
 // MIDDLEWARE
@@ -757,6 +764,10 @@ res.json({
 
 const OTP_EXPIRY = 5 * 60 * 1000; // 5 minutes
 
+// How long a login token stays valid. Long enough that nobody is logged
+// out mid-demo, short enough that a leaked token is not permanent.
+const SESSION_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+
 const emailTransporter =
   process.env.EMAIL_USER && process.env.EMAIL_PASS
     ? nodemailer.createTransport({
@@ -1140,6 +1151,14 @@ async function getUserFromRequest(req) {
     return null;
   }
 
+  // Tokens are not valid forever. An expired one is removed on sight so
+  // it cannot be replayed, and the caller is treated as signed out.
+  if (Date.now() - (session.createdAt ?? 0) > SESSION_TTL) {
+    await sessionsStore.deleteByToken(token);
+
+    return null;
+  }
+
   const user = await usersStore.findByEmail(session.email);
 
   if (!user) {
@@ -1333,8 +1352,32 @@ app.get("/api/contact/messages", async (req, res) => {
 // START SERVER
 // =====================================================
 
-app.listen(PORT, () => {
+// Express 5 runs the listen() callback even when the bind fails, which
+// would print a "running at" line immediately before the port error.
+// The server's own "listening" event only fires on a successful bind.
+const server = app.listen(PORT);
+
+server.on("listening", () => {
   console.log(
     `SafeSurf AI backend running at http://localhost:${PORT}`
   );
+});
+
+// Without this, a taken port throws an unhandled error and the crash
+// says nothing useful about what to actually do.
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(
+      `\nPort ${PORT} is already in use.\n\n` +
+        `  - Another copy of this server may still be running.\n` +
+        `  - On macOS, port 5000 is used by AirPlay Receiver\n` +
+        `    (System Settings > General > AirDrop & Handoff).\n\n` +
+        `Start on a different port with:  PORT=5051 node server.js\n` +
+        `and set VITE_API_URL to match in safesurf-ai/.env\n`
+    );
+
+    process.exit(1);
+  }
+
+  throw error;
 });

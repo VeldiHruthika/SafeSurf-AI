@@ -1,8 +1,17 @@
-// Minimal fetch wrapper shared by pages that talk to the backend.
-// Matches the host/port already used by ReportAnalyzer, AIHealthAssistant,
-// and SymptomAnalyzer (http://localhost:5000).
+// Minimal fetch wrapper shared by every page that talks to the backend.
+//
+// The base URL lives here alone - import API_BASE rather than writing the
+// host out again, so changing the port is a one-line change.
+//
+// Default is 5050, not 5000: macOS runs AirPlay Receiver on port 5000,
+// which answers requests without CORS headers and surfaces in the browser
+// as a generic "Network error".
+//
+// Override for a different port or a deployed backend by creating
+// safesurf-ai/.env with:  VITE_API_URL=http://localhost:5051
 
-const API_BASE = "http://localhost:5000";
+export const API_BASE =
+  import.meta.env.VITE_API_URL ?? "http://localhost:5050";
 
 /**
  * @param {string} path - e.g. '/api/contact'

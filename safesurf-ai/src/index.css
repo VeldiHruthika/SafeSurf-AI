@@ -519,7 +519,11 @@ body.dark-theme .logo-text {
   margin-bottom: 20px;
 }
 
-.footer-column a {
+/* The footer links are <button> elements, not anchors, because they run
+   navigation callbacks rather than jumping to a URL. Both selectors are
+   kept so the styling holds if an anchor is added back later. */
+.footer-column a,
+.footer-column .footer-link {
   display: block;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.55);
@@ -527,8 +531,25 @@ body.dark-theme .logo-text {
   transition: color var(--transition-fast);
 }
 
-.footer-column a:hover {
+/* Strip the default button chrome so it reads as a link. */
+.footer-column .footer-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.footer-column a:hover,
+.footer-column .footer-link:hover {
   color: var(--color-accent);
+}
+
+.footer-column .footer-link:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 .footer-contact {

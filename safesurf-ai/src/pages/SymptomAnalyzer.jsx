@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { symptoms } from "../data/symptoms";
+import { API_BASE } from "../api";
 
 function SymptomAnalyzer() {
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -120,7 +121,7 @@ function SymptomAnalyzer() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/analyze",
+        `${API_BASE}/api/analyze`,
         {
           method: "POST",
 

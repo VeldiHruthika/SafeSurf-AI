@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 
 import "../styles/report-analyzer.css";
+import { API_BASE } from "../api";
 
 
 
@@ -113,7 +114,7 @@ function ReportAnalyzer() {
 
       const response =
         await fetch(
-          "http://localhost:5000/api/report-analyze",
+          `${API_BASE}/api/report-analyze`,
           {
             method: "POST",
             body: formData,
