@@ -1,58 +1,21 @@
 function Navbar({
+  openSymptomAnalyzer,
+  openPharmacy,
+  openReportAnalyzer,
+  openAIAssistant,
   goHome,
+  openLogin,
   darkMode,
-  toggleTheme,
+  toggleTheme
 }) {
- 
-  const handleHome = (event) => {
-    event.preventDefault();
-
-    goHome?.();
-  };
-
-  const handleServices = (event) => {
-    event.preventDefault();
-
-    goHome?.();
-
-    setTimeout(() => {
-      document
-        .getElementById("services")
-        ?.scrollIntoView({
-          behavior: "smooth",
-        });
-    }, 50);
-  };
-
-  const handleArticles = (event) => {
-    event.preventDefault();
-  };
-
-  const handleFAQs = (event) => {
-  event.preventDefault();
-
-  goHome?.();
-
-  setTimeout(() => {
-    document
-      .getElementById("faqs")
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-  }, 50);
-};
-
-  const handleContact = (event) => {
-    event.preventDefault();
-  };
-
   return (
     <header className="navbar">
+
       <div className="nav-container">
 
+        {/* LOGO */}
+
         <button
-          type="button"
           className="logo"
           onClick={goHome}
         >
@@ -65,69 +28,94 @@ function Navbar({
           </span>
         </button>
 
+
+        {/* NAVIGATION */}
+
         <nav className="nav-links">
 
-          <a
-            href="#home"
-            onClick={handleHome}
+          {/* HOME */}
+
+          <button
+            className="nav-button"
+            onClick={goHome}
           >
             Home
-          </a>
+          </button>
 
-          <a
-            href="#services"
-            onClick={handleServices}
-          >
+
+          {/* SERVICES */}
+
+          <a href="#services">
             Services
           </a>
 
-          <a
-            href="#articles"
-            onClick={handleArticles}
-          >
-            Articles
+
+          {/* SPECIALISTS */}
+
+          <a href="#specialists">
+            Specialists
           </a>
 
-          <a
-            href="#faqs"
-            onClick={handleFAQs}
-          >
-            FAQs
-          </a>
 
-          <a
-            href="#contact"
-            onClick={handleContact}
+          {/* PHARMACY */}
+
+          <button
+            className="nav-button"
+            onClick={openPharmacy}
           >
-            Contact Us
-          </a>
+            Pharmacy
+          </button>
+
+
+          {/* REPORT ANALYZER */}
+
+          <button
+            className="nav-button"
+            onClick={openReportAnalyzer}
+          >
+            Report Analyzer
+          </button>
+
+
+          {/* AI ASSISTANT */}
+
+          <button
+            className="nav-button"
+            onClick={openAIAssistant}
+          >
+            AI Assistant
+          </button>
 
         </nav>
 
 
-        
-<div className="nav-actions">
+        <div className="nav-actions">
 
-  
+          {/* DARK MODE */}
 
-  <button
-  type="button"
-  className="theme-btn"
-  onClick={toggleTheme}
->
-  {darkMode ? "☀️" : "🌙"}
-</button>
+          {toggleTheme && (
+            <button
+              className="theme-btn"
+              onClick={toggleTheme}
+            >
+              {darkMode ? "☀" : "☾"}
+            </button>
+          )}
 
-  <button
-    type="button"
-    className="login-btn"
-  >
-    Login
-  </button>
 
-</div>
+          {/* LOGIN */}
+
+          <button
+            className="login-btn"
+            onClick={openLogin}
+          >
+            Login
+          </button>
+
+        </div>
 
       </div>
+
     </header>
   );
 }

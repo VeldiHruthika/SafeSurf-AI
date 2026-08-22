@@ -1,0 +1,436 @@
+/* =====================================================
+   LOGIN PAGE
+   ===================================================== */
+
+.login-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-body);
+
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+
+/* =====================================================
+   LOGIN AREA
+   ===================================================== */
+
+.ss-auth {
+  min-height: calc(100vh - 80px);
+
+  padding: 80px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+
+  background: var(--color-bg);
+  color: var(--color-body);
+
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+
+/* =====================================================
+   BACK TO HOME
+   ===================================================== */
+
+.ss-back {
+  position: absolute;
+
+  top: 30px;
+  left: 30px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--color-body);
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  transition: 0.3s;
+}
+
+.ss-back:hover {
+  color: var(--color-primary);
+
+  transform: translateX(-3px);
+}
+
+
+/* =====================================================
+   CARD
+   ===================================================== */
+
+.ss-card {
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  box-shadow: var(--shadow-lg);
+}
+
+.ss-auth-card {
+  width: 100%;
+  max-width: 480px;
+
+  padding: 42px;
+
+  border-radius: 30px;
+
+  text-align: center;
+}
+
+
+/* =====================================================
+   ICON
+   ===================================================== */
+
+.ss-icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+
+  background: var(--color-primary-light);
+
+  color: var(--color-primary);
+}
+
+
+/* =====================================================
+   EYEBROW
+   ===================================================== */
+
+.ss-eyebrow {
+  display: inline-flex;
+  align-items: center;
+
+  margin-bottom: 12px;
+
+  color: var(--color-primary);
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* =====================================================
+   TITLE
+   ===================================================== */
+
+.ss-title {
+  margin: 0 0 30px;
+
+  color: var(--color-ink);
+
+  font-size: 32px;
+
+  line-height: 1.2;
+}
+
+
+/* =====================================================
+   LABEL
+   ===================================================== */
+
+.ss-label {
+  display: block;
+
+  margin-bottom: 20px;
+
+  text-align: left;
+
+  color: var(--color-body);
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   INPUT WRAPPER
+   ===================================================== */
+
+.ss-input-wrap {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  margin-top: 8px;
+}
+
+.ss-input-wrap svg {
+  position: absolute;
+
+  left: 17px;
+
+  color: var(--color-muted);
+
+  pointer-events: none;
+}
+
+
+/* =====================================================
+   INPUT
+   ===================================================== */
+
+.ss-input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 16px 18px;
+
+  border: 1px solid var(--color-border);
+
+  border-radius: 16px;
+
+  outline: none;
+
+  background: var(--color-bg);
+
+  color: var(--color-ink);
+
+  font-size: 15px;
+
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s,
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.ss-input-wrap .ss-input {
+  padding-left: 46px;
+}
+
+.ss-input::placeholder {
+  color: var(--color-muted);
+}
+
+.ss-input:focus {
+  border-color: var(--color-primary);
+
+  box-shadow:
+    0 0 0 3px var(--color-primary-light);
+}
+
+
+/* =====================================================
+   OTP INPUT
+   ===================================================== */
+
+.ss-otp {
+  text-align: center;
+
+  font-size: 24px;
+
+  font-weight: 600;
+
+  letter-spacing: 8px;
+}
+
+
+/* =====================================================
+   BUTTON
+   ===================================================== */
+
+.ss-btn {
+  width: 100%;
+
+  padding: 16px 24px;
+
+  border: none;
+
+  border-radius: 30px;
+
+  background: var(--color-primary);
+
+  color: #fff;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.3s,
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.ss-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+
+  transform: translateY(-2px);
+}
+
+.ss-btn:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   ERROR
+   ===================================================== */
+
+.ss-error {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 0 0 18px;
+
+  padding: 12px 14px;
+
+  border-radius: 14px;
+
+  background: var(--color-accent-light);
+
+  color: var(--color-accent-dark);
+
+  border: 1px solid var(--color-border);
+
+  text-align: left;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   HINT
+   ===================================================== */
+
+.ss-hint {
+  margin: 0 0 22px;
+
+  color: var(--color-muted);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.ss-hint strong {
+  color: var(--color-ink);
+}
+
+.ss-hint a,
+.ss-foot a {
+  color: var(--color-primary);
+
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.ss-hint a:hover,
+.ss-foot a:hover {
+  text-decoration: underline;
+}
+
+
+/* =====================================================
+   CHANGE EMAIL
+   ===================================================== */
+
+.ss-linkbtn {
+  margin-top: 18px;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--color-primary);
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.ss-linkbtn:hover {
+  transform: translateX(-3px);
+}
+
+
+/* =====================================================
+   FOOT TEXT
+   ===================================================== */
+
+.ss-foot {
+  margin: 28px 0 0;
+
+  color: var(--color-muted);
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 900px) {
+  .ss-auth {
+    padding: 70px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ss-auth {
+    min-height: calc(100vh - 70px);
+
+    padding: 50px 16px;
+  }
+
+  .ss-auth-card {
+    padding: 30px 22px;
+
+    border-radius: 24px;
+  }
+
+  .ss-title {
+    font-size: 28px;
+  }
+
+  .ss-otp {
+    font-size: 21px;
+
+    letter-spacing: 6px;
+  }
+
+  .ss-back {
+    top: 20px;
+    left: 18px;
+  }
+}

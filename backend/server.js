@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import multer from "multer";
 import pdf from "pdf-parse";
 import fs from "fs";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 import { GoogleGenAI } from "@google/genai";
 
@@ -740,6 +742,373 @@ res.json({
 // =====================================================
 // START SERVER
 // =====================================================
+// =====================================================
+// AUTHENTICATION - OTP LOGIN / SIGNUP
+// =====================================================
+
+const users = new Map();
+const otpStore = new Map();
+const sessions = new Map();
+
+const OTP_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+const emailTransporter =
+  process.env.EMAIL_USER && process.env.EMAIL_PASS
+    ? nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      })
+    : null;
+
+// -----------------------------------------------------
+// Generate 6-digit OTP
+// -----------------------------------------------------
+
+function generateOTP() {
+  return crypto.randomInt(100000, 1000000).toString();
+}
+
+// -----------------------------------------------------
+// Send OTP email
+// -----------------------------------------------------
+
+async function sendOTPEmail(email, otp, purpose) {
+  if (!emailTransporter) {
+    console.log("EMAIL_USER / EMAIL_PASS not configured.");
+    console.log(`DEV OTP for ${email}: ${otp}`);
+    return;
+  }
+
+  await emailTransporter.sendMail({
+    from: `"SafeSurf AI" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject:
+      purpose === "signup"
+        ? "SafeSurf AI - Verify your account"
+        : "SafeSurf AI - Login OTP",
+
+    text: `Your SafeSurf AI verification code is ${otp}.
+
+This code will expire in 5 minutes.
+
+If you did not request this code, you can ignore this email.`,
+
+    html: `
+      <div style="font-family: Arial, sans-serif;">
+        <h2>SafeSurf AI</h2>
+
+        <p>Your verification code is:</p>
+
+        <h1 style="letter-spacing: 6px;">
+          ${otp}
+        </h1>
+
+        <p>This code will expire in <strong>5 minutes</strong>.</p>
+
+        <p>If you did not request this code, you can ignore this email.</p>
+      </div>
+    `,
+  });
+}
+
+// -----------------------------------------------------
+// SIGNUP - Send OTP
+// -----------------------------------------------------
+
+app.post("/api/auth/signup", async (req, res) => {
+  try {
+    const { username, email, mobile } = req.body;
+
+    if (!username || !email || !mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Username, email and mobile are required.",
+      });
+    }
+
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: "Enter a valid email address.",
+      });
+    }
+
+    // Check whether account already exists
+    if (users.has(normalizedEmail)) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email already exists.",
+      });
+    }
+
+    const otp = generateOTP();
+
+    otpStore.set(normalizedEmail, {
+      otp,
+      type: "signup",
+      username,
+      email: normalizedEmail,
+      mobile,
+      expiresAt: Date.now() + OTP_EXPIRY,
+      attempts: 0,
+    });
+
+    await sendOTPEmail(
+      normalizedEmail,
+      otp,
+      "signup"
+    );
+
+    return res.json({
+      success: true,
+      message: "Verification code sent to your email.",
+    });
+
+  } catch (error) {
+    console.error("SIGNUP OTP ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not send verification code.",
+    });
+  }
+});
+
+// -----------------------------------------------------
+// SIGNUP - Verify OTP
+// -----------------------------------------------------
+
+app.post("/api/auth/signup/verify", async (req, res) => {
+  try {
+    const {
+      username,
+      email,
+      mobile,
+      otp,
+    } = req.body;
+
+    const normalizedEmail =
+      email?.trim().toLowerCase();
+
+    const record = otpStore.get(normalizedEmail);
+
+    if (!record || record.type !== "signup") {
+      return res.status(404).json({
+        success: false,
+        message: "No signup verification request found.",
+      });
+    }
+
+    if (Date.now() > record.expiresAt) {
+      otpStore.delete(normalizedEmail);
+
+      return res.status(410).json({
+        success: false,
+        message: "OTP has expired. Please request a new one.",
+      });
+    }
+
+    if (record.otp !== String(otp)) {
+      record.attempts += 1;
+
+      if (record.attempts >= 5) {
+        otpStore.delete(normalizedEmail);
+
+        return res.status(429).json({
+          success: false,
+          message: "Too many incorrect attempts.",
+        });
+      }
+
+      return res.status(401).json({
+        success: false,
+        message: "Invalid OTP.",
+      });
+    }
+
+    // Create account
+    users.set(normalizedEmail, {
+      username: username || record.username,
+      email: normalizedEmail,
+      mobile: mobile || record.mobile,
+      verified: true,
+      createdAt: new Date().toISOString(),
+    });
+
+    otpStore.delete(normalizedEmail);
+
+    return res.status(201).json({
+      success: true,
+      message: "Account created successfully.",
+    });
+
+  } catch (error) {
+    console.error("SIGNUP VERIFY ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not create account.",
+    });
+  }
+});
+
+// -----------------------------------------------------
+// LOGIN - Send OTP
+// -----------------------------------------------------
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required.",
+      });
+    }
+
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    const user = users.get(normalizedEmail);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No account found with this email.",
+      });
+    }
+
+    if (!user.verified) {
+      return res.status(403).json({
+        success: false,
+        message: "Please verify your account first.",
+      });
+    }
+
+    const otp = generateOTP();
+
+    otpStore.set(normalizedEmail, {
+      otp,
+      type: "login",
+      email: normalizedEmail,
+      expiresAt: Date.now() + OTP_EXPIRY,
+      attempts: 0,
+    });
+
+    await sendOTPEmail(
+      normalizedEmail,
+      otp,
+      "login"
+    );
+
+    return res.json({
+      success: true,
+      message: "Login OTP sent to your email.",
+    });
+
+  } catch (error) {
+    console.error("LOGIN OTP ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not send login code.",
+    });
+  }
+});
+
+// -----------------------------------------------------
+// LOGIN - Verify OTP
+// -----------------------------------------------------
+
+app.post("/api/auth/login/verify", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const normalizedEmail =
+      email?.trim().toLowerCase();
+
+    const record = otpStore.get(normalizedEmail);
+
+    if (!record || record.type !== "login") {
+      return res.status(404).json({
+        success: false,
+        message: "No login OTP request found.",
+      });
+    }
+
+    if (Date.now() > record.expiresAt) {
+      otpStore.delete(normalizedEmail);
+
+      return res.status(410).json({
+        success: false,
+        message: "OTP has expired. Please request a new one.",
+      });
+    }
+
+    if (record.otp !== String(otp)) {
+      record.attempts += 1;
+
+      if (record.attempts >= 5) {
+        otpStore.delete(normalizedEmail);
+
+        return res.status(429).json({
+          success: false,
+          message: "Too many incorrect attempts.",
+        });
+      }
+
+      return res.status(401).json({
+        success: false,
+        message: "Invalid OTP.",
+      });
+    }
+
+    const user = users.get(normalizedEmail);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Account not found.",
+      });
+    }
+
+    // Generate login token
+    const token = crypto.randomBytes(32).toString("hex");
+
+    sessions.set(token, {
+      email: normalizedEmail,
+      createdAt: Date.now(),
+    });
+
+    otpStore.delete(normalizedEmail);
+
+    return res.json({
+      success: true,
+      message: "Login successful.",
+      token,
+      user: {
+        username: user.username,
+        email: user.email,
+        mobile: user.mobile,
+      },
+    });
+
+  } catch (error) {
+    console.error("LOGIN VERIFY ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not verify login.",
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(

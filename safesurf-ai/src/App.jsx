@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import {
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 
 import Home from "./pages/Home";
 import SymptomAnalyzer from "./pages/SymptomAnalyzer";
@@ -6,21 +11,37 @@ import Pharmacy from "./pages/Pharmacy";
 import ReportAnalyzer from "./pages/ReportAnalyzer";
 import AIHealthAssistant from "./pages/AIHealthAssistant";
 
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Contact from "./pages/Contact";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
-useEffect(() => {
-  document.body.classList.toggle("dark-theme", darkMode);
-}, [darkMode]);
-
-const toggleTheme = () => {
-  setDarkMode((prev) => !prev);
-};
   const [page, setPage] = useState("home");
-  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
+
+  const [selectedSymptoms, setSelectedSymptoms] =
+    useState([]);
+
+  const navigate = useNavigate();
+
+  // =====================================================
+  // DARK MODE
+  // =====================================================
+
+  useEffect(() => {
+    document.body.classList.toggle(
+      "dark-theme",
+      darkMode
+    );
+  }, [darkMode]);
+
+  const toggleTheme = () => {
+    setDarkMode((prev) => !prev);
+  };
 
   // =====================================================
   // NAVIGATION FUNCTIONS
@@ -28,48 +49,62 @@ const toggleTheme = () => {
 
   const goHome = () => {
     setPage("home");
+    navigate("/");
   };
 
   const openSymptomAnalyzer = () => {
     setPage("symptom-analyzer");
+    navigate("/");
   };
 
   const openReportAnalyzer = () => {
     setPage("report-analyzer");
+    navigate("/");
   };
+
   const openAIAssistant = () => {
-  setPage("ai-assistant");
-};
+    setPage("ai-assistant");
+    navigate("/");
+  };
 
   const openPharmacy = (symptoms = []) => {
     setSelectedSymptoms(symptoms);
     setPage("pharmacy");
+    navigate("/");
   };
 
   // =====================================================
-  // CURRENT PAGE
+  // LOGIN
+  // =====================================================
+
+  const openLogin = () => {
+    navigate("/login");
+  };
+
+  // =====================================================
+  // CONTACT
+  // =====================================================
+
+  const openContact = () => {
+    navigate("/contact");
+  };
+
+  // =====================================================
+  // CURRENT MAIN APP PAGE
   // =====================================================
 
   const renderPage = () => {
 
-    // ===================================================
-    // HOME
-    // ===================================================
-
     if (page === "home") {
-  return (
-    <Home
-      openSymptomAnalyzer={openSymptomAnalyzer}
-      openReportAnalyzer={openReportAnalyzer}
-      openPharmacy={() => openPharmacy([])}
-      openAIAssistant={openAIAssistant}
-    />
-  );
-}
-
-    // ===================================================
-    // SYMPTOM ANALYZER
-    // ===================================================
+      return (
+        <Home
+          openSymptomAnalyzer={openSymptomAnalyzer}
+          openReportAnalyzer={openReportAnalyzer}
+          openPharmacy={() => openPharmacy([])}
+          openAIAssistant={openAIAssistant}
+        />
+      );
+    }
 
     if (page === "symptom-analyzer") {
       return (
@@ -80,10 +115,6 @@ const toggleTheme = () => {
       );
     }
 
-    // ===================================================
-    // PHARMACY
-    // ===================================================
-
     if (page === "pharmacy") {
       return (
         <Pharmacy
@@ -93,10 +124,6 @@ const toggleTheme = () => {
       );
     }
 
-    // ===================================================
-    // REPORT ANALYZER
-    // ===================================================
-
     if (page === "report-analyzer") {
       return (
         <ReportAnalyzer
@@ -104,51 +131,90 @@ const toggleTheme = () => {
         />
       );
     }
+
     if (page === "ai-assistant") {
-  return (
-    <AIHealthAssistant />
-  );
-}
+      return (
+        <AIHealthAssistant />
+      );
+    }
 
     return null;
   };
 
   // =====================================================
-  // APP LAYOUT
+  // MAIN WEBSITE LAYOUT
+  // =====================================================
+
+  const MainWebsite = () => {
+    return (
+      <div className="app">
+
+        <Navbar
+          openSymptomAnalyzer={openSymptomAnalyzer}
+          openPharmacy={() => openPharmacy([])}
+          openReportAnalyzer={openReportAnalyzer}
+          openAIAssistant={openAIAssistant}
+          goHome={goHome}
+          openLogin={openLogin}
+          openContact={openContact}
+          darkMode={darkMode}
+          toggleTheme={toggleTheme}
+        />
+
+        <main>
+          {renderPage()}
+        </main>
+
+        <Footer />
+
+      </div>
+    );
+  };
+
+  // =====================================================
+  // ROUTES
   // =====================================================
 
   return (
-    <div className="app">
+    <Routes>
 
-      {/* =================================================
-          GLOBAL NAVBAR
-      ================================================= */}
+      {/* MAIN SAFESURF WEBSITE */}
+      <Route
+        path="/"
+        element={<MainWebsite />}
+      />
 
-      <Navbar
-  openSymptomAnalyzer={openSymptomAnalyzer}
-  openPharmacy={() => openPharmacy([])}
-  openReportAnalyzer={openReportAnalyzer}
-  openAIAssistant={openAIAssistant}
-  goHome={goHome}
-  darkMode={darkMode}
-  toggleTheme={toggleTheme}
+      {/* LOGIN */}
+      <Route
+  path="/login"
+  element={
+    <Login
+      openSymptomAnalyzer={openSymptomAnalyzer}
+      openPharmacy={() => openPharmacy([])}
+      openReportAnalyzer={openReportAnalyzer}
+      openAIAssistant={openAIAssistant}
+      goHome={goHome}
+      openLogin={openLogin}
+      openContact={openContact}
+      darkMode={darkMode}
+      toggleTheme={toggleTheme}
+    />
+  }
 />
 
-      {/* =================================================
-          PAGE CONTENT
-      ================================================= */}
+      {/* SIGNUP */}
+      <Route
+        path="/signup"
+        element={<Signup />}
+      />
 
-      <main>
-        {renderPage()}
-      </main>
+      {/* CONTACT */}
+      <Route
+        path="/contact"
+        element={<Contact />}
+      />
 
-      {/* =================================================
-          GLOBAL FOOTER
-      ================================================= */}
-
-      <Footer />
-
-    </div>
+    </Routes>
   );
 }
 
