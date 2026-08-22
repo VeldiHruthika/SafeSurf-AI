@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, HeartPulse, MessageSquare, User, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 import { api } from '../api';
 
+import '../styles/Login.css';
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Contact() {

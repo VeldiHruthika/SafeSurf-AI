@@ -14,9 +14,35 @@ import AIHealthAssistant from "./pages/AIHealthAssistant";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Contact from "./pages/Contact";
+import ModulePlaceholder from "./pages/ModulePlaceholder";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+
+// =====================================================
+// MAIN WEBSITE LAYOUT
+// =====================================================
+//
+// Declared at module scope on purpose. Defining it inside App would
+// create a new component type on every render, so React would unmount
+// and remount the whole page - losing scroll position and any state
+// inside the active view - every time the theme or page changed.
+
+function MainWebsite({ navProps, children }) {
+  return (
+    <div className="app">
+
+      <Navbar {...navProps} />
+
+      <main>
+        {children}
+      </main>
+
+      <Footer />
+
+    </div>
+  );
+}
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -74,19 +100,29 @@ function App() {
   };
 
   // =====================================================
-  // LOGIN
-  // =====================================================
-
-  const openLogin = () => {
-    navigate("/login");
-  };
-
-  // =====================================================
   // CONTACT
   // =====================================================
 
   const openContact = () => {
     navigate("/contact");
+  };
+
+  // =====================================================
+  // SHARED NAVBAR PROPS
+  //
+  // Every page that renders a Navbar gets the same set, so the menu
+  // behaves identically no matter which route you are on.
+  // =====================================================
+
+  const navProps = {
+    openSymptomAnalyzer,
+    openPharmacy: () => openPharmacy([]),
+    openReportAnalyzer,
+    openAIAssistant,
+    goHome,
+    openContact,
+    darkMode,
+    toggleTheme,
   };
 
   // =====================================================
@@ -142,36 +178,6 @@ function App() {
   };
 
   // =====================================================
-  // MAIN WEBSITE LAYOUT
-  // =====================================================
-
-  const MainWebsite = () => {
-    return (
-      <div className="app">
-
-        <Navbar
-          openSymptomAnalyzer={openSymptomAnalyzer}
-          openPharmacy={() => openPharmacy([])}
-          openReportAnalyzer={openReportAnalyzer}
-          openAIAssistant={openAIAssistant}
-          goHome={goHome}
-          openLogin={openLogin}
-          openContact={openContact}
-          darkMode={darkMode}
-          toggleTheme={toggleTheme}
-        />
-
-        <main>
-          {renderPage()}
-        </main>
-
-        <Footer />
-
-      </div>
-    );
-  };
-
-  // =====================================================
   // ROUTES
   // =====================================================
 
@@ -181,26 +187,18 @@ function App() {
       {/* MAIN SAFESURF WEBSITE */}
       <Route
         path="/"
-        element={<MainWebsite />}
+        element={
+          <MainWebsite navProps={navProps}>
+            {renderPage()}
+          </MainWebsite>
+        }
       />
 
       {/* LOGIN */}
       <Route
-  path="/login"
-  element={
-    <Login
-      openSymptomAnalyzer={openSymptomAnalyzer}
-      openPharmacy={() => openPharmacy([])}
-      openReportAnalyzer={openReportAnalyzer}
-      openAIAssistant={openAIAssistant}
-      goHome={goHome}
-      openLogin={openLogin}
-      openContact={openContact}
-      darkMode={darkMode}
-      toggleTheme={toggleTheme}
-    />
-  }
-/>
+        path="/login"
+        element={<Login {...navProps} />}
+      />
 
       {/* SIGNUP */}
       <Route
@@ -212,6 +210,44 @@ function App() {
       <Route
         path="/contact"
         element={<Contact />}
+      />
+
+      {/* ARTICLES - Friend 3's module plugs in here */}
+      <Route
+        path="/articles"
+        element={
+          <ModulePlaceholder
+            navProps={navProps}
+            title="Health Articles"
+            owner="the Pharmacy + Articles module"
+            description="Health articles will be listed here, loaded from the database through the articles API."
+          />
+        }
+      />
+
+      {/* SPECIALISTS - Friend 2's module plugs in here */}
+      <Route
+        path="/specialists"
+        element={
+          <ModulePlaceholder
+            navProps={navProps}
+            title="Specialists & Appointments"
+            owner="the Specialists + Appointments module"
+            description="Specialist listings, doctor and hospital details, and appointment booking will live here."
+          />
+        }
+      />
+
+      {/* UNKNOWN ROUTE */}
+      <Route
+        path="*"
+        element={
+          <ModulePlaceholder
+            navProps={navProps}
+            title="Page not found"
+            description="The page you were looking for does not exist."
+          />
+        }
       />
 
     </Routes>

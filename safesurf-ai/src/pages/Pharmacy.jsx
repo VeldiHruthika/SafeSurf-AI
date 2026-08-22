@@ -2,7 +2,7 @@ import { useState } from "react";
 import { products } from "../data/products";
 import "../styles/Pharmacy.css";
 
-function Pharmacy({ selectedSymptoms = [], goHome }) {
+function Pharmacy({ selectedSymptoms = [] }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 

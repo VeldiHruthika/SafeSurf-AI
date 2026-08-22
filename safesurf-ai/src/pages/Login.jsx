@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 
 import {
-  ArrowLeft,
   HeartPulse,
   Lock,
   Mail,

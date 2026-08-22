@@ -4,11 +4,7 @@ import "../styles/report-analyzer.css";
 
 
 
-function ReportAnalyzer({
-  goHome,
-  openSymptomAnalyzer,
-  openPharmacy,
-}) {
+function ReportAnalyzer() {
 
   const fileInputRef = useRef(null);
 

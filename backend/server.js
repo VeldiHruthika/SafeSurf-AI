@@ -10,6 +10,12 @@ import nodemailer from "nodemailer";
 import { GoogleGenAI } from "@google/genai";
 
 import { conditionData } from "./data/conditionData.js";
+import {
+  usersStore,
+  sessionsStore,
+  otpStore,
+  messagesStore,
+} from "./store.js";
 
 dotenv.config();
 
@@ -746,9 +752,8 @@ res.json({
 // AUTHENTICATION - OTP LOGIN / SIGNUP
 // =====================================================
 
-const users = new Map();
-const otpStore = new Map();
-const sessions = new Map();
+// Storage lives in ./store.js so Friend 1 can swap the in-memory
+// implementation for the real database without touching these routes.
 
 const OTP_EXPIRY = 5 * 60 * 1000; // 5 minutes
 
@@ -840,7 +845,7 @@ app.post("/api/auth/signup", async (req, res) => {
     }
 
     // Check whether account already exists
-    if (users.has(normalizedEmail)) {
+    if (await usersStore.existsByEmail(normalizedEmail)) {
       return res.status(409).json({
         success: false,
         message: "An account with this email already exists.",
@@ -849,7 +854,7 @@ app.post("/api/auth/signup", async (req, res) => {
 
     const otp = generateOTP();
 
-    otpStore.set(normalizedEmail, {
+    await otpStore.set(normalizedEmail, {
       otp,
       type: "signup",
       username,
@@ -896,7 +901,7 @@ app.post("/api/auth/signup/verify", async (req, res) => {
     const normalizedEmail =
       email?.trim().toLowerCase();
 
-    const record = otpStore.get(normalizedEmail);
+    const record = await otpStore.get(normalizedEmail);
 
     if (!record || record.type !== "signup") {
       return res.status(404).json({
@@ -906,7 +911,7 @@ app.post("/api/auth/signup/verify", async (req, res) => {
     }
 
     if (Date.now() > record.expiresAt) {
-      otpStore.delete(normalizedEmail);
+      await otpStore.delete(normalizedEmail);
 
       return res.status(410).json({
         success: false,
@@ -918,7 +923,7 @@ app.post("/api/auth/signup/verify", async (req, res) => {
       record.attempts += 1;
 
       if (record.attempts >= 5) {
-        otpStore.delete(normalizedEmail);
+        await otpStore.delete(normalizedEmail);
 
         return res.status(429).json({
           success: false,
@@ -933,15 +938,13 @@ app.post("/api/auth/signup/verify", async (req, res) => {
     }
 
     // Create account
-    users.set(normalizedEmail, {
+    await usersStore.create({
       username: username || record.username,
       email: normalizedEmail,
       mobile: mobile || record.mobile,
-      verified: true,
-      createdAt: new Date().toISOString(),
     });
 
-    otpStore.delete(normalizedEmail);
+    await otpStore.delete(normalizedEmail);
 
     return res.status(201).json({
       success: true,
@@ -976,7 +979,7 @@ app.post("/api/auth/login", async (req, res) => {
     const normalizedEmail =
       email.trim().toLowerCase();
 
-    const user = users.get(normalizedEmail);
+    const user = await usersStore.findByEmail(normalizedEmail);
 
     if (!user) {
       return res.status(404).json({
@@ -994,7 +997,7 @@ app.post("/api/auth/login", async (req, res) => {
 
     const otp = generateOTP();
 
-    otpStore.set(normalizedEmail, {
+    await otpStore.set(normalizedEmail, {
       otp,
       type: "login",
       email: normalizedEmail,
@@ -1034,7 +1037,7 @@ app.post("/api/auth/login/verify", async (req, res) => {
     const normalizedEmail =
       email?.trim().toLowerCase();
 
-    const record = otpStore.get(normalizedEmail);
+    const record = await otpStore.get(normalizedEmail);
 
     if (!record || record.type !== "login") {
       return res.status(404).json({
@@ -1044,7 +1047,7 @@ app.post("/api/auth/login/verify", async (req, res) => {
     }
 
     if (Date.now() > record.expiresAt) {
-      otpStore.delete(normalizedEmail);
+      await otpStore.delete(normalizedEmail);
 
       return res.status(410).json({
         success: false,
@@ -1056,7 +1059,7 @@ app.post("/api/auth/login/verify", async (req, res) => {
       record.attempts += 1;
 
       if (record.attempts >= 5) {
-        otpStore.delete(normalizedEmail);
+        await otpStore.delete(normalizedEmail);
 
         return res.status(429).json({
           success: false,
@@ -1070,7 +1073,7 @@ app.post("/api/auth/login/verify", async (req, res) => {
       });
     }
 
-    const user = users.get(normalizedEmail);
+    const user = await usersStore.findByEmail(normalizedEmail);
 
     if (!user) {
       return res.status(404).json({
@@ -1082,12 +1085,12 @@ app.post("/api/auth/login/verify", async (req, res) => {
     // Generate login token
     const token = crypto.randomBytes(32).toString("hex");
 
-    sessions.set(token, {
+    await sessionsStore.create({
+      token,
       email: normalizedEmail,
-      createdAt: Date.now(),
     });
 
-    otpStore.delete(normalizedEmail);
+    await otpStore.delete(normalizedEmail);
 
     return res.json({
       success: true,
@@ -1109,6 +1112,226 @@ app.post("/api/auth/login/verify", async (req, res) => {
     });
   }
 });
+
+// -----------------------------------------------------
+// SESSION - Resolve the logged-in user from a token
+// -----------------------------------------------------
+//
+// Reads the "Authorization: Bearer <token>" header and returns the
+// matching user, so the React app can restore the signed-in state after
+// a refresh instead of trusting whatever sits in localStorage.
+
+async function getUserFromRequest(req) {
+  const header = req.headers.authorization ?? "";
+
+  if (!header.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = header.slice("Bearer ".length).trim();
+
+  if (!token) {
+    return null;
+  }
+
+  const session = await sessionsStore.findByToken(token);
+
+  if (!session) {
+    return null;
+  }
+
+  const user = await usersStore.findByEmail(session.email);
+
+  if (!user) {
+    return null;
+  }
+
+  return { token, user };
+}
+
+app.get("/api/auth/me", async (req, res) => {
+  try {
+    const resolved = await getUserFromRequest(req);
+
+    if (!resolved) {
+      return res.status(401).json({
+        success: false,
+        message: "Not signed in.",
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: {
+        username: resolved.user.username,
+        email: resolved.user.email,
+        mobile: resolved.user.mobile,
+      },
+    });
+
+  } catch (error) {
+    console.error("AUTH ME ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not load your account.",
+    });
+  }
+});
+
+// -----------------------------------------------------
+// LOGOUT - Destroy the session
+// -----------------------------------------------------
+
+app.post("/api/auth/logout", async (req, res) => {
+  try {
+    const resolved = await getUserFromRequest(req);
+
+    if (resolved) {
+      await sessionsStore.deleteByToken(resolved.token);
+    }
+
+    // Always report success: logging out of an already-expired session
+    // is not an error from the user's point of view.
+    return res.json({
+      success: true,
+      message: "Logged out.",
+    });
+
+  } catch (error) {
+    console.error("LOGOUT ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not log out.",
+    });
+  }
+});
+
+// =====================================================
+// CONTACT
+// =====================================================
+
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_NAME_LENGTH = 100;
+
+app.post("/api/contact", async (req, res) => {
+  try {
+    const { name, email, message } = req.body ?? {};
+
+    const trimmedName = typeof name === "string" ? name.trim() : "";
+    const trimmedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const trimmedMessage = typeof message === "string" ? message.trim() : "";
+
+    // -------------------------------------------------
+    // Validation - mirrors the checks in Contact.jsx so
+    // a direct API call cannot bypass them
+    // -------------------------------------------------
+
+    if (!trimmedName) {
+      return res.status(400).json({
+        success: false,
+        message: "Name is required.",
+      });
+    }
+
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      return res.status(400).json({
+        success: false,
+        message: `Name must be ${MAX_NAME_LENGTH} characters or fewer.`,
+      });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: "Enter a valid email address.",
+      });
+    }
+
+    if (!trimmedMessage) {
+      return res.status(400).json({
+        success: false,
+        message: "Message cannot be empty.",
+      });
+    }
+
+    if (trimmedMessage.length > MAX_MESSAGE_LENGTH) {
+      return res.status(400).json({
+        success: false,
+        message: `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.`,
+      });
+    }
+
+    const saved = await messagesStore.create({
+      name: trimmedName,
+      email: trimmedEmail,
+      message: trimmedMessage,
+    });
+
+    console.log(
+      `CONTACT MESSAGE #${saved.id} from ${trimmedEmail}`
+    );
+
+    // Notify the support inbox when email is configured. A delivery
+    // failure must not lose the message - it is already stored - so the
+    // send is best-effort and only logged.
+    if (emailTransporter) {
+      try {
+        await emailTransporter.sendMail({
+          from: `"SafeSurf AI" <${process.env.EMAIL_USER}>`,
+          to: process.env.CONTACT_INBOX ?? process.env.EMAIL_USER,
+          replyTo: trimmedEmail,
+          subject: `SafeSurf AI - New contact message from ${trimmedName}`,
+          text: `From: ${trimmedName} <${trimmedEmail}>\n\n${trimmedMessage}`,
+        });
+      } catch (mailError) {
+        console.error("CONTACT EMAIL ERROR:", mailError);
+      }
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Thanks! Your message has been received.",
+    });
+
+  } catch (error) {
+    console.error("CONTACT ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not send your message. Please try again.",
+    });
+  }
+});
+
+// -----------------------------------------------------
+// Read stored messages (for whoever builds the admin view)
+// -----------------------------------------------------
+
+app.get("/api/contact/messages", async (req, res) => {
+  try {
+    const messages = await messagesStore.list();
+
+    return res.json({
+      success: true,
+      count: messages.length,
+      messages,
+    });
+
+  } catch (error) {
+    console.error("CONTACT LIST ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not load messages.",
+    });
+  }
+});
+
+// =====================================================
+// START SERVER
+// =====================================================
 
 app.listen(PORT, () => {
   console.log(

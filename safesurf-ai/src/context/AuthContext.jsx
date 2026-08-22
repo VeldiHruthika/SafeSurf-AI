@@ -1,4 +1,11 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { api } from '../api';
 
 const TOKEN_KEY = 'ss_token';
@@ -7,6 +14,57 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+
+  // The signed-in user, resolved from the token by the backend.
+  const [user, setUser] = useState(null);
+
+  // True until the stored token has been checked once, so the navbar can
+  // avoid flashing "Login" at a user who is actually signed in.
+  const [loading, setLoading] = useState(() =>
+    Boolean(localStorage.getItem(TOKEN_KEY))
+  );
+
+  const clearSession = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  // -----------------------------------------------------
+  // Restore the session on load / whenever the token changes.
+  // A token in localStorage is only a claim - the backend decides
+  // whether it is still valid.
+  // -----------------------------------------------------
+
+  useEffect(() => {
+    // No token means nothing to restore. `loading` was initialised from
+    // the stored token and `clearSession` already clears `user`, so
+    // there is no state to update here.
+    if (!token) return;
+
+    let cancelled = false;
+
+    api('/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((result) => {
+      if (cancelled) return;
+
+      if (result.ok && result.data?.user) {
+        setUser(result.data.user);
+      } else if (result.status === 401) {
+        // Token was rejected - drop it rather than pretending we are
+        // signed in. A network error (status 0) is left alone so a brief
+        // backend outage does not log the user out.
+        clearSession();
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, clearSession]);
 
   const value = useMemo(() => {
     // Contract §5.1: 200 OTP sent · 400 invalid · 409 email/mobile taken · 500 email failed
@@ -40,30 +98,47 @@ export function AuthProvider({ children }) {
       if (result.ok && result.data?.token) {
         localStorage.setItem(TOKEN_KEY, result.data.token);
         setToken(result.data.token);
+
+        // The verify response already carries the user, so the navbar
+        // updates immediately instead of waiting for /api/auth/me.
+        if (result.data.user) {
+          setUser(result.data.user);
+        }
       }
 
       return result;
     };
 
-    const logout = () => {
-      localStorage.removeItem(TOKEN_KEY);
-      setToken(null);
+    const logout = async () => {
+      // Tell the backend to destroy the session, then clear locally
+      // regardless of the outcome - the user asked to be logged out.
+      if (token) {
+        await api('/api/auth/logout', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+
+      clearSession();
     };
 
     return {
       token,
-      isAuthenticated: Boolean(token),
+      user,
+      loading,
+      isAuthenticated: Boolean(token && user),
       signup,
       verifySignupOtp,
       sendLoginOtp,
       verifyLoginOtp,
       logout,
     };
-  }, [token]);
+  }, [token, user, loading, clearSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) {
