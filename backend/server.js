@@ -791,11 +791,14 @@ function generateOTP() {
 // Send OTP email
 // -----------------------------------------------------
 
+// Returns true when the code actually left over SMTP, false when it was
+// only printed locally. Callers pass this to the client so the UI does
+// not claim an email was sent when none was.
 async function sendOTPEmail(email, otp, purpose) {
   if (!emailTransporter) {
     console.log("EMAIL_USER / EMAIL_PASS not configured.");
     console.log(`DEV OTP for ${email}: ${otp}`);
-    return;
+    return false;
   }
 
   await emailTransporter.sendMail({
@@ -828,6 +831,8 @@ If you did not request this code, you can ignore this email.`,
       </div>
     `,
   });
+
+  return true;
 }
 
 // -----------------------------------------------------
@@ -875,7 +880,7 @@ app.post("/api/auth/signup", async (req, res) => {
       attempts: 0,
     });
 
-    await sendOTPEmail(
+    const emailed = await sendOTPEmail(
       normalizedEmail,
       otp,
       "signup"
@@ -883,7 +888,10 @@ app.post("/api/auth/signup", async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Verification code sent to your email.",
+      emailed,
+      message: emailed
+        ? "Verification code sent to your email."
+        : "Email is not configured on the server, so your code was printed to the server console.",
     });
 
   } catch (error) {
@@ -1016,7 +1024,7 @@ app.post("/api/auth/login", async (req, res) => {
       attempts: 0,
     });
 
-    await sendOTPEmail(
+    const emailed = await sendOTPEmail(
       normalizedEmail,
       otp,
       "login"
@@ -1024,7 +1032,10 @@ app.post("/api/auth/login", async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Login OTP sent to your email.",
+      emailed,
+      message: emailed
+        ? "Login OTP sent to your email."
+        : "Email is not configured on the server, so your code was printed to the server console.",
     });
 
   } catch (error) {

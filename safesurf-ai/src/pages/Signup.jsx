@@ -21,6 +21,11 @@ export default function Signup() {
   const [serverMsg, setServerMsg] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // The backend reports whether the code actually went out over email.
+  // Without it the OTP is only printed to the server console, and the
+  // screen must say so rather than claiming an email was sent.
+  const [emailed, setEmailed] = useState(true);
+
   const set = (f) => (e) =>
     setForm((p) => ({ ...p, [f]: e.target.value }));
 
@@ -65,6 +70,7 @@ export default function Signup() {
     setBusy(false);
 
     if (ok && data.success) {
+      setEmailed(data.emailed !== false);
       setStep('otp');
     } else {
       setServerMsg(data.message ?? 'Signup failed. Please try again.');
@@ -198,8 +204,19 @@ export default function Signup() {
         {step === 'otp' && (
           <form onSubmit={handleOtp} noValidate>
             <p className="ss-hint">
-              We sent a 6-digit code to <strong>{form.email}</strong>. It
-              expires in 5 minutes.
+              {emailed ? (
+                <>
+                  We sent a 6-digit code to <strong>{form.email}</strong>. It
+                  expires in 5 minutes.
+                </>
+              ) : (
+                <>
+                  Email is not configured on the server, so your 6-digit code
+                  was printed in the <strong>backend terminal</strong> - look
+                  for the line starting <code>DEV OTP</code>. It expires in 5
+                  minutes.
+                </>
+              )}
             </p>
 
             {serverMsg && (

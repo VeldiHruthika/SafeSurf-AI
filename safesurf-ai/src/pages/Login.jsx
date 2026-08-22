@@ -47,6 +47,11 @@ export default function Login({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // The backend reports whether the code actually went out over email.
+  // Without it the OTP is only printed to the server console, and the
+  // screen must say so rather than claiming an email was sent.
+  const [emailed, setEmailed] = useState(true);
+
   // =====================================================
   // SEND LOGIN OTP
   // =====================================================
@@ -69,6 +74,7 @@ export default function Login({
     setBusy(false);
 
     if (ok && data.success) {
+      setEmailed(data.emailed !== false);
       setStep("otp");
     } else {
       setError(
@@ -286,13 +292,29 @@ export default function Login({
 
               <p className="ss-hint">
 
-                We emailed a 6-digit code to{" "}
+                {emailed ? (
+                  <>
+                    We emailed a 6-digit code to{" "}
 
-                <strong>
-                  {email}
-                </strong>
+                    <strong>
+                      {email}
+                    </strong>
 
-                . It expires in 5 minutes.
+                    . It expires in 5 minutes.
+                  </>
+                ) : (
+                  <>
+                    Email is not configured on the server, so your 6-digit
+                    code was printed in the{" "}
+
+                    <strong>
+                      backend terminal
+                    </strong>
+
+                    {" "}- look for the line starting <code>DEV OTP</code>.
+                    It expires in 5 minutes.
+                  </>
+                )}
 
               </p>
 

@@ -341,6 +341,26 @@
   color: var(--color-ink);
 }
 
+/* Used when the OTP was printed to the server console instead of
+   emailed, so "DEV OTP" reads as the literal log line to look for. */
+.ss-hint code {
+  padding: 1px 5px;
+
+  border-radius: 4px;
+
+  background: rgba(0, 0, 0, 0.06);
+
+  color: var(--color-ink);
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  font-size: 0.92em;
+}
+
+body.dark-theme .ss-hint code {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .ss-hint a,
 .ss-foot a {
   color: var(--color-primary);
