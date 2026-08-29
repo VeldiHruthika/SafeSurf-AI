@@ -1,0 +1,2933 @@
+/* =====================================================
+   BODYSCOPE AI
+
+   Built on the site's existing tokens (--color-primary teal,
+   --color-accent coral, Fraunces/Inter, the heartbeat
+   --pulse-line signature already used on the navbar). No new
+   palette or typeface is introduced - the "scan console" is
+   just a dark tint of the brand's own primary color, and the
+   active-hotspot pulse borrows the same lub-dub rhythm as the
+   hero's heartbeatGlow animation.
+===================================================== */
+
+.bodyscope-page {
+  --scope-console: var(--color-primary-darker);
+  --scope-console-text: #eaf5f1;
+  --scope-console-muted: #9fc4ba;
+  --scope-console-line: rgba(255, 255, 255, 0.05);
+  --scope-pulse: var(--color-accent);
+  --scope-pulse-soft: rgba(242, 114, 74, 0.18);
+
+  padding: 120px 20px 80px;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-body);
+
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.bodyscope-hero {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
+
+.bodyscope-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 25px;
+  padding: 9px 16px;
+
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+
+  background: var(--color-surface);
+  color: var(--color-body);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.bodyscope-back:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+
+  transform: translateX(-3px);
+}
+
+
+.bodyscope-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 22px;
+  margin-bottom: 24px;
+
+  border-radius: 30px;
+  border: 1.5px solid var(--color-primary);
+
+  background: var(--color-primary-lighter);
+  color: var(--color-primary-dark);
+
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  box-shadow:
+    0 0 0 4px var(--color-primary-lighter),
+    0 8px 20px -8px var(--color-primary);
+
+  animation: bodyscope-badge-pulse 3s ease-in-out infinite;
+}
+
+@keyframes bodyscope-badge-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 4px var(--color-primary-lighter),
+      0 8px 20px -8px var(--color-primary);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px var(--color-primary-lighter),
+      0 10px 26px -6px var(--color-primary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bodyscope-badge {
+    animation: none;
+  }
+}
+
+
+.bodyscope-hero h1 {
+  margin: 0 0 20px;
+
+  font-size: 64px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+
+  color: var(--color-ink);
+}
+
+
+.bodyscope-hero h1 span {
+  display: inline-block;
+
+  background: linear-gradient(
+    100deg,
+    var(--color-primary) 20%,
+    var(--color-accent) 80%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  font-style: italic;
+  font-weight: 800;
+}
+
+
+.bodyscope-hero p {
+  max-width: 650px;
+  margin: auto;
+
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.7;
+
+  color: var(--color-body);
+}
+
+
+/* =====================================================
+   MAIN CARD
+===================================================== */
+
+.bodyscope-card {
+  max-width: 1100px;
+  margin: auto;
+
+  padding: 4px;
+
+  border-radius: var(--radius-xl);
+
+  background: linear-gradient(
+    155deg,
+    var(--color-accent) 0%,
+    var(--scope-console) 22%,
+    var(--color-primary-dark) 100%
+  );
+
+  box-shadow:
+    var(--shadow-lg),
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 30px 60px -20px var(--color-primary-dark);
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 3px;
+
+  align-items: stretch;
+}
+
+
+/* =====================================================
+   LEFT BODY MAP SECTION
+===================================================== */
+
+.body-map-section {
+  position: relative;
+
+  min-width: 0;
+
+  padding: 25px;
+
+  border-radius: calc(var(--radius-xl) - 3px);
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      var(--scope-console-line) 0px,
+      var(--scope-console-line) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--scope-console-line) 0px,
+      var(--scope-console-line) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    var(--scope-console);
+
+  overflow: hidden;
+}
+
+
+.body-map-section::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 16px;
+
+  background-image: var(--pulse-line);
+  background-repeat: repeat-x;
+  background-size: 140px 28px;
+
+  opacity: 0.3;
+
+  animation: pulseScroll 9s linear infinite;
+
+  pointer-events: none;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .body-map-section::after {
+    animation: none;
+  }
+}
+
+
+.body-map-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+
+.body-map-header h2 {
+  margin: 0 0 6px;
+
+  font-size: 22px;
+
+  color: var(--scope-console-text);
+}
+
+
+.body-map-header p {
+  margin: 0;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  color: var(--scope-console-muted);
+}
+
+
+/* =====================================================
+   TOGGLE COLUMN (gender toggle stacked above front/back)
+===================================================== */
+
+.body-toggles-column {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+}
+
+
+/* =====================================================
+   MALE / FEMALE + FRONT / BACK TOGGLE
+===================================================== */
+
+.body-view-toggle {
+  display: flex;
+
+  padding: 4px;
+
+  border-radius: var(--radius-sm);
+
+  background: rgba(0, 0, 0, 0.28);
+
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  flex-shrink: 0;
+}
+
+
+.body-gender-toggle {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+
+.body-gender-toggle .view-btn.active {
+  background: linear-gradient(
+    120deg,
+    var(--scope-pulse) 0%,
+    #ff9466 100%
+  );
+
+  color: #1a0e08;
+  font-weight: 800;
+
+  box-shadow: 0 4px 14px -4px var(--scope-pulse);
+}
+
+
+.body-gender-toggle .view-btn:hover {
+  color: #ffd2c2;
+}
+
+
+.view-btn {
+  border: none;
+
+  background: transparent;
+
+  padding: 9px 18px;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-weight: 700;
+  font-size: 13.5px;
+
+  color: var(--scope-console-muted);
+
+  transition: 0.2s ease;
+}
+
+
+.view-btn:hover {
+  color: var(--scope-console-text);
+}
+
+
+.view-btn.active {
+  background: linear-gradient(
+    120deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+
+  color: #ffffff;
+  font-weight: 800;
+
+  box-shadow:
+    0 4px 12px -2px rgba(0, 0, 0, 0.4);
+}
+
+
+/* =====================================================
+   BODY IMAGE WRAPPER
+
+   IMPORTANT:
+   Hotspots use this exact container as their
+   coordinate system.
+===================================================== */
+
+.body-image-wrapper {
+  position: relative;
+
+  width: 100%;
+  max-width: 430px;
+
+  margin: 0 auto;
+
+  aspect-ratio: 4 / 7;
+
+  overflow: hidden;
+
+  display: block;
+
+  border-radius: var(--radius-md);
+
+  background: rgba(0, 0, 0, 0.18);
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Viewfinder corner brackets - nods to the "scope" in BodyScope */
+
+.body-image-wrapper::before,
+.body-image-wrapper::after {
+  content: "";
+
+  position: absolute;
+
+  width: 22px;
+  height: 22px;
+
+  border-color: var(--scope-pulse);
+  border-style: solid;
+  border-width: 0;
+
+  opacity: 0.75;
+
+  z-index: 2;
+
+  pointer-events: none;
+}
+
+
+.body-image-wrapper::before {
+  top: 10px;
+  left: 10px;
+
+  border-top-width: 2px;
+  border-left-width: 2px;
+
+  border-top-left-radius: 4px;
+}
+
+
+.body-image-wrapper::after {
+  bottom: 10px;
+  right: 10px;
+
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+
+  border-bottom-right-radius: 4px;
+}
+
+
+
+/* =====================================================
+   ANATOMICAL BODY IMAGE
+===================================================== */
+
+.anatomical-body-image {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: fill;
+
+  user-select: none;
+
+  pointer-events: none;
+}
+
+
+/* =====================================================
+   HOTSPOT LAYER
+===================================================== */
+
+.body-hotspots {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+
+/* =====================================================
+   CLICKABLE HOTSPOTS
+===================================================== */
+
+.body-hotspot {
+  position: absolute;
+
+  border: 1.5px solid transparent;
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  pointer-events: auto;
+
+  transform: translate(-50%, -50%);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  padding: 0;
+}
+
+.body-hotspot:hover {
+  border-color: rgba(242, 114, 74, 0.8);
+
+  box-shadow:
+    0 0 0 6px rgba(242, 114, 74, 0.12);
+
+  transform:
+    translate(-50%, -50%)
+    scale(1.06);
+}
+
+.body-hotspot.active {
+  border-color: var(--scope-pulse);
+
+  background: rgba(242, 114, 74, 0.12);
+
+  box-shadow:
+    0 0 0 6px rgba(242, 114, 74, 0.14),
+    0 0 16px rgba(242, 114, 74, 0.45);
+
+  animation: bodyscope-heartbeat 2.6s ease-in-out infinite;
+}
+
+/* Same lub-dub rhythm as the hero's heartbeatGlow keyframe */
+
+@keyframes bodyscope-heartbeat {
+  0%, 100% {
+    box-shadow:
+      0 0 0 5px rgba(242, 114, 74, 0.12),
+      0 0 12px rgba(242, 114, 74, 0.4);
+  }
+  28% {
+    box-shadow:
+      0 0 0 7px rgba(242, 114, 74, 0.16),
+      0 0 18px rgba(242, 114, 74, 0.5);
+  }
+  42% {
+    box-shadow:
+      0 0 0 6px rgba(242, 114, 74, 0.13),
+      0 0 14px rgba(242, 114, 74, 0.42);
+  }
+  58% {
+    box-shadow:
+      0 0 0 9px rgba(242, 114, 74, 0.18),
+      0 0 20px rgba(242, 114, 74, 0.55);
+  }
+  74% {
+    box-shadow:
+      0 0 0 6px rgba(242, 114, 74, 0.13),
+      0 0 14px rgba(242, 114, 74, 0.42);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body-hotspot.active {
+    animation: none;
+  }
+}
+/* =====================================================
+   HOTSPOT POSITIONS
+   Every coordinate was measured directly off the source illustrations
+   (body-front/back.png for male, female-front/back.png for female -
+   all 800x1400) with a percentage grid overlaid on the actual pixels,
+   then verified by rendering the resulting circles back onto the
+   images. Male and female coordinates are entirely independent
+   measurements - none were scaled or reused between bodies, since the
+   two poses and proportions differ throughout (narrower shoulders,
+   closer-to-body arms, different torso/hip ratio on the female figure).
+
+   NAMING: male hotspots have no gender suffix; female hotspots add
+   "-female", matching how BodyScopeAI.jsx builds the class name
+   (createHotspot only appends "-female" when gender === "female").
+   Left/right pairs both map to the same generic label in the JSX
+   (e.g. both "hotspot-hip-left" and "hotspot-hip-right" select
+   "Hip"), so right-side coordinates are simply the horizontal mirror
+   (100 - left%) of the left-side ones - both illustrations are
+   bilaterally symmetric poses.
+===================================================== */
+
+/* ================= MALE - FRONT ================= */
+
+.hotspot-head-front {
+  left: 50%;
+  top: 6%;
+  width: 20%;
+  height: 13%;
+}
+
+.hotspot-scalp-front {
+  left: 50%;
+  top: 1.5%;
+  width: 14%;
+  height: 3.5%;
+}
+
+.hotspot-face-front {
+  left: 50%;
+  top: 8.5%;
+  width: 16%;
+  height: 9%;
+}
+
+.hotspot-eyes-front {
+  left: 50%;
+  top: 6.7%;
+  width: 12%;
+  height: 2%;
+}
+
+.hotspot-ear-left-front {
+  left: 41%;
+  top: 8%;
+  width: 5%;
+  height: 3.5%;
+}
+
+.hotspot-ear-right-front {
+  left: 59%;
+  top: 8%;
+  width: 5%;
+  height: 3.5%;
+}
+
+.hotspot-nose-front {
+  left: 50%;
+  top: 8.5%;
+  width: 4%;
+  height: 2.5%;
+}
+
+.hotspot-mouth-front {
+  left: 50%;
+  top: 10.7%;
+  width: 8%;
+  height: 2%;
+}
+
+.hotspot-jaw-front {
+  left: 50%;
+  top: 12.5%;
+  width: 12%;
+  height: 3%;
+}
+
+.hotspot-neck-front {
+  left: 50%;
+  top: 15%;
+  width: 8%;
+  height: 4%;
+}
+
+.hotspot-throat-front {
+  left: 50%;
+  top: 16%;
+  width: 6%;
+  height: 3%;
+}
+
+.hotspot-shoulder-left-front {
+  left: 28%;
+  top: 23%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-shoulder-right-front {
+  left: 72%;
+  top: 23%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-armpit-left-front {
+  left: 28%;
+  top: 29%;
+  width: 8%;
+  height: 7%;
+}
+
+.hotspot-armpit-right-front {
+  left: 72%;
+  top: 29%;
+  width: 8%;
+  height: 7%;
+}
+
+.hotspot-chest-front {
+  left: 50%;
+  top: 24%;
+  width: 28%;
+  height: 11%;
+}
+
+.hotspot-abdomen-front {
+  left: 50%;
+  top: 34.5%;
+  width: 17%;
+  height: 12%;
+}
+
+.hotspot-waist-front {
+  left: 50%;
+  top: 44%;
+  width: 25%;
+  height: 5%;
+}
+
+.hotspot-groin-front {
+  left: 50%;
+  top: 48%;
+  width: 16%;
+  height: 6%;
+}
+
+.hotspot-arm-left-front {
+  left: 25%;
+  top: 30%;
+  width: 15%;
+  height: 7%;
+}
+
+.hotspot-arm-right-front {
+  left: 75%;
+  top: 30%;
+  width: 15%;
+  height: 7%;
+}
+
+.hotspot-forearm-left-front {
+  left: 21%;
+  top: 40%;
+  width: 11%;
+  height: 8%;
+}
+
+.hotspot-forearm-right-front {
+  left: 79%;
+  top: 40%;
+  width: 11%;
+  height: 8%;
+}
+
+.hotspot-elbow-left-front {
+  left: 24%;
+  top: 34.5%;
+  width: 13%;
+  height: 4%;
+}
+
+.hotspot-elbow-right-front {
+  left: 76%;
+  top: 34.5%;
+  width: 13%;
+  height: 4%;
+}
+
+.hotspot-wrist-left-front {
+  left: 15%;
+  top: 46.5%;
+  width: 11%;
+  height: 4%;
+}
+
+.hotspot-wrist-right-front {
+  left: 85%;
+  top: 46.5%;
+  width: 11%;
+  height: 4%;
+}
+
+.hotspot-hand-left-front {
+  left: 12%;
+  top: 50.5%;
+  width: 15%;
+  height: 7%;
+}
+
+.hotspot-hand-right-front {
+  left: 88%;
+  top: 50.5%;
+  width: 15%;
+  height: 7%;
+}
+
+.hotspot-fingers-left-front {
+  left: 8%;
+  top: 55.5%;
+  width: 17%;
+  height: 6%;
+}
+
+.hotspot-fingers-right-front {
+  left: 92%;
+  top: 55.5%;
+  width: 17%;
+  height: 6%;
+}
+
+.hotspot-hip-left-front {
+  left: 34.5%;
+  top: 47%;
+  width: 11%;
+  height: 7%;
+}
+
+.hotspot-hip-right-front {
+  left: 65.5%;
+  top: 47%;
+  width: 11%;
+  height: 7%;
+}
+
+.hotspot-thigh-left-front {
+  left: 41%;
+  top: 58%;
+  width: 17%;
+  height: 11%;
+}
+
+.hotspot-thigh-right-front {
+  left: 59%;
+  top: 58%;
+  width: 17%;
+  height: 11%;
+}
+
+.hotspot-knee-left-front {
+  left: 39.5%;
+  top: 68%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-knee-right-front {
+  left: 60.5%;
+  top: 68%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-leg-left-front {
+  left: 42%;
+  top: 78%;
+  width: 15%;
+  height: 9%;
+}
+
+.hotspot-leg-right-front {
+  left: 58%;
+  top: 78%;
+  width: 15%;
+  height: 9%;
+}
+
+.hotspot-ankle-left-front {
+  left: 39%;
+  top: 87%;
+  width: 9%;
+  height: 5%;
+}
+
+.hotspot-ankle-right-front {
+  left: 61%;
+  top: 87%;
+  width: 9%;
+  height: 5%;
+}
+
+.hotspot-foot-left-front {
+  left: 36%;
+  top: 93%;
+  width: 15%;
+  height: 6%;
+}
+
+.hotspot-foot-right-front {
+  left: 64%;
+  top: 93%;
+  width: 15%;
+  height: 6%;
+}
+
+.hotspot-toes-left-front {
+  left: 34%;
+  top: 97%;
+  width: 12%;
+  height: 4%;
+}
+
+.hotspot-toes-right-front {
+  left: 66%;
+  top: 97%;
+  width: 12%;
+  height: 4%;
+}
+
+
+/* ================= MALE - BACK ================= */
+
+.hotspot-head-back {
+  left: 50%;
+  top: 6%;
+  width: 18%;
+  height: 11%;
+}
+
+.hotspot-scalp-back {
+  left: 50%;
+  top: 4.5%;
+  width: 14%;
+  height: 4.5%;
+}
+
+.hotspot-ear-left-back {
+  left: 42%;
+  top: 10.5%;
+  width: 5%;
+  height: 3.5%;
+}
+
+.hotspot-ear-right-back {
+  left: 58%;
+  top: 10.5%;
+  width: 5%;
+  height: 3.5%;
+}
+
+.hotspot-neck-back {
+  left: 50%;
+  top: 15%;
+  width: 11%;
+  height: 6%;
+}
+
+.hotspot-shoulder-left-back {
+  left: 27%;
+  top: 23%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-shoulder-right-back {
+  left: 73%;
+  top: 23%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-armpit-left-back {
+  left: 31%;
+  top: 29.5%;
+  width: 8%;
+  height: 5%;
+}
+
+.hotspot-armpit-right-back {
+  left: 69%;
+  top: 29.5%;
+  width: 8%;
+  height: 5%;
+}
+
+.hotspot-spine-back {
+  left: 50%;
+  top: 32%;
+  width: 6%;
+  height: 30%;
+}
+
+.hotspot-upperback-back {
+  left: 50%;
+  top: 27%;
+  width: 32%;
+  height: 15%;
+}
+
+.hotspot-lowerback-back {
+  left: 50%;
+  top: 40.5%;
+  width: 24%;
+  height: 9%;
+}
+
+.hotspot-waist-back {
+  left: 50%;
+  top: 45.5%;
+  width: 30%;
+  height: 5%;
+}
+
+.hotspot-buttocks-back {
+  left: 50%;
+  top: 51%;
+  width: 26%;
+  height: 10%;
+}
+
+.hotspot-arm-left-back {
+  left: 27%;
+  top: 28%;
+  width: 10%;
+  height: 10%;
+}
+
+.hotspot-arm-right-back {
+  left: 73%;
+  top: 28%;
+  width: 10%;
+  height: 10%;
+}
+
+.hotspot-forearm-left-back {
+  left: 24%;
+  top: 40%;
+  width: 11%;
+  height: 9%;
+}
+
+.hotspot-forearm-right-back {
+  left: 76%;
+  top: 40%;
+  width: 11%;
+  height: 9%;
+}
+
+.hotspot-elbow-left-back {
+  left: 25%;
+  top: 36%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-elbow-right-back {
+  left: 75%;
+  top: 36%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-wrist-left-back {
+  left: 22%;
+  top: 49.5%;
+  width: 9%;
+  height: 4%;
+}
+
+.hotspot-wrist-right-back {
+  left: 78%;
+  top: 49.5%;
+  width: 9%;
+  height: 4%;
+}
+
+.hotspot-hand-left-back {
+  left: 24%;
+  top: 51%;
+  width: 12%;
+  height: 6%;
+}
+
+.hotspot-hand-right-back {
+  left: 76%;
+  top: 51%;
+  width: 12%;
+  height: 6%;
+}
+
+.hotspot-fingers-left-back {
+  left: 23%;
+  top: 56%;
+  width: 12%;
+  height: 5%;
+}
+
+.hotspot-fingers-right-back {
+  left: 77%;
+  top: 56%;
+  width: 12%;
+  height: 5%;
+}
+
+.hotspot-hip-left-back {
+  left: 37%;
+  top: 47%;
+  width: 9%;
+  height: 6%;
+}
+
+.hotspot-hip-right-back {
+  left: 63%;
+  top: 47%;
+  width: 9%;
+  height: 6%;
+}
+
+.hotspot-thigh-left-back {
+  left: 41%;
+  top: 60%;
+  width: 16%;
+  height: 8%;
+}
+
+.hotspot-thigh-right-back {
+  left: 59%;
+  top: 60%;
+  width: 16%;
+  height: 8%;
+}
+
+.hotspot-knee-left-back {
+  left: 41%;
+  top: 72%;
+  width: 12%;
+  height: 4%;
+}
+
+.hotspot-knee-right-back {
+  left: 59%;
+  top: 72%;
+  width: 12%;
+  height: 4%;
+}
+
+.hotspot-leg-left-back {
+  left: 41%;
+  top: 79%;
+  width: 16%;
+  height: 10%;
+}
+
+.hotspot-leg-right-back {
+  left: 59%;
+  top: 79%;
+  width: 16%;
+  height: 10%;
+}
+
+.hotspot-ankle-left-back {
+  left: 41%;
+  top: 88%;
+  width: 8%;
+  height: 4%;
+}
+
+.hotspot-ankle-right-back {
+  left: 59%;
+  top: 88%;
+  width: 8%;
+  height: 4%;
+}
+
+.hotspot-foot-left-back {
+  left: 41%;
+  top: 94%;
+  width: 16%;
+  height: 6%;
+}
+
+.hotspot-foot-right-back {
+  left: 59%;
+  top: 94%;
+  width: 16%;
+  height: 6%;
+}
+
+.hotspot-toes-left-back {
+  left: 39%;
+  top: 97.5%;
+  width: 13%;
+  height: 3%;
+}
+
+.hotspot-toes-right-back {
+  left: 61%;
+  top: 97.5%;
+  width: 13%;
+  height: 3%;
+}
+
+
+/* ================= FEMALE - FRONT ================= */
+
+.hotspot-head-front-female {
+  left: 51%;
+  top: 7%;
+  width: 13%;
+  height: 10%;
+}
+
+.hotspot-scalp-front-female {
+  left: 52%;
+  top: 4%;
+  width: 12%;
+  height: 3%;
+}
+
+.hotspot-face-front-female {
+  left: 51%;
+  top: 9.5%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-eyes-front-female {
+  left: 52%;
+  top: 9%;
+  width: 11%;
+  height: 2.5%;
+}
+
+.hotspot-ear-left-front-female {
+  left: 43%;
+  top: 10%;
+  width: 4%;
+  height: 3%;
+}
+
+.hotspot-ear-right-front-female {
+  left: 59%;
+  top: 10%;
+  width: 4%;
+  height: 3%;
+}
+
+.hotspot-nose-front-female {
+  left: 51%;
+  top: 10.3%;
+  width: 3%;
+  height: 2%;
+}
+
+.hotspot-mouth-front-female {
+  left: 51%;
+  top: 12.7%;
+  width: 6%;
+  height: 1.8%;
+}
+
+.hotspot-jaw-front-female {
+  left: 51%;
+  top: 14%;
+  width: 10%;
+  height: 2.5%;
+}
+
+.hotspot-neck-front-female {
+  left: 51%;
+  top: 16.5%;
+  width: 7%;
+  height: 4%;
+}
+
+.hotspot-throat-front-female {
+  left: 52%;
+  top: 15.5%;
+  width: 5%;
+  height: 2.5%;
+}
+
+.hotspot-shoulder-left-front-female {
+  left: 35%;
+  top: 21%;
+  width: 10%;
+  height: 7%;
+}
+
+.hotspot-shoulder-right-front-female {
+  left: 67%;
+  top: 21%;
+  width: 10%;
+  height: 7%;
+}
+
+.hotspot-armpit-left-front-female {
+  left: 34%;
+  top: 25%;
+  width: 6%;
+  height: 5%;
+}
+
+.hotspot-armpit-right-front-female {
+  left: 68%;
+  top: 25%;
+  width: 6%;
+  height: 5%;
+}
+
+.hotspot-chest-front-female {
+  left: 51%;
+  top: 25%;
+  width: 30%;
+  height: 10%;
+}
+
+.hotspot-breast-left-front-female {
+  left: 44.4%;
+  top: 26%;
+  width: 12%;
+  height: 7.5%;
+}
+
+.hotspot-breast-right-front-female {
+  left: 57.6%;
+  top: 26%;
+  width: 12%;
+  height: 7.5%;
+}
+
+.hotspot-abdomen-front-female {
+  left: 51%;
+  top: 36%;
+  width: 18%;
+  height: 10%;
+}
+
+.hotspot-waist-front-female {
+  left: 51%;
+  top: 43%;
+  width: 22%;
+  height: 5%;
+}
+
+.hotspot-groin-front-female {
+  left: 52%;
+  top: 47%;
+  width: 14%;
+  height: 6%;
+}
+
+.hotspot-arm-left-front-female {
+  left: 35%;
+  top: 27%;
+  width: 10%;
+  height: 11%;
+}
+
+.hotspot-arm-right-front-female {
+  left: 67%;
+  top: 27%;
+  width: 10%;
+  height: 11%;
+}
+
+.hotspot-forearm-left-front-female {
+  left: 34%;
+  top: 40%;
+  width: 8%;
+  height: 8%;
+}
+
+.hotspot-forearm-right-front-female {
+  left: 68%;
+  top: 40%;
+  width: 8%;
+  height: 8%;
+}
+
+.hotspot-elbow-left-front-female {
+  left: 34%;
+  top: 34.5%;
+  width: 9%;
+  height: 4%;
+}
+
+.hotspot-elbow-right-front-female {
+  left: 68%;
+  top: 34.5%;
+  width: 9%;
+  height: 4%;
+}
+
+.hotspot-wrist-left-front-female {
+  left: 33%;
+  top: 46.5%;
+  width: 6%;
+  height: 3%;
+}
+
+.hotspot-wrist-right-front-female {
+  left: 69%;
+  top: 46.5%;
+  width: 6%;
+  height: 3%;
+}
+
+.hotspot-hand-left-front-female {
+  left: 30%;
+  top: 49%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-hand-right-front-female {
+  left: 72%;
+  top: 49%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-fingers-left-front-female {
+  left: 28%;
+  top: 53%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-fingers-right-front-female {
+  left: 74%;
+  top: 53%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-hip-left-front-female {
+  left: 39%;
+  top: 46%;
+  width: 8%;
+  height: 6%;
+}
+
+.hotspot-hip-right-front-female {
+  left: 63%;
+  top: 46%;
+  width: 8%;
+  height: 6%;
+}
+
+.hotspot-thigh-left-front-female {
+  left: 44%;
+  top: 58%;
+  width: 13%;
+  height: 14%;
+}
+
+.hotspot-thigh-right-front-female {
+  left: 58%;
+  top: 58%;
+  width: 13%;
+  height: 14%;
+}
+
+.hotspot-knee-left-front-female {
+  left: 45%;
+  top: 65.5%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-knee-right-front-female {
+  left: 57%;
+  top: 65.5%;
+  width: 10%;
+  height: 5%;
+}
+
+.hotspot-leg-left-front-female {
+  left: 44%;
+  top: 75%;
+  width: 10%;
+  height: 9%;
+}
+
+.hotspot-leg-right-front-female {
+  left: 58%;
+  top: 75%;
+  width: 10%;
+  height: 9%;
+}
+
+.hotspot-ankle-left-front-female {
+  left: 43%;
+  top: 86.5%;
+  width: 7%;
+  height: 3.5%;
+}
+
+.hotspot-ankle-right-front-female {
+  left: 59%;
+  top: 86.5%;
+  width: 7%;
+  height: 3.5%;
+}
+
+.hotspot-foot-left-front-female {
+  left: 43%;
+  top: 90.5%;
+  width: 13%;
+  height: 5.5%;
+}
+
+.hotspot-foot-right-front-female {
+  left: 59%;
+  top: 90.5%;
+  width: 13%;
+  height: 5.5%;
+}
+
+.hotspot-toes-left-front-female {
+  left: 42%;
+  top: 92%;
+  width: 11%;
+  height: 3%;
+}
+
+.hotspot-toes-right-front-female {
+  left: 60%;
+  top: 92%;
+  width: 11%;
+  height: 3%;
+}
+
+
+/* ================= FEMALE - BACK ================= */
+
+.hotspot-head-back-female {
+  left: 51%;
+  top: 9%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-scalp-back-female {
+  left: 52%;
+  top: 8%;
+  width: 14%;
+  height: 3%;
+}
+
+.hotspot-ear-left-back-female {
+  left: 45%;
+  top: 13%;
+  width: 4%;
+  height: 3%;
+}
+
+.hotspot-ear-right-back-female {
+  left: 57%;
+  top: 13%;
+  width: 4%;
+  height: 3%;
+}
+
+.hotspot-neck-back-female {
+  left: 51%;
+  top: 17.5%;
+  width: 7%;
+  height: 4%;
+}
+
+.hotspot-shoulder-left-back-female {
+  left: 39%;
+  top: 24%;
+  width: 12%;
+  height: 6%;
+}
+
+.hotspot-shoulder-right-back-female {
+  left: 63%;
+  top: 24%;
+  width: 12%;
+  height: 6%;
+}
+
+.hotspot-armpit-left-back-female {
+  left: 46%;
+  top: 27%;
+  width: 6%;
+  height: 5%;
+}
+
+.hotspot-armpit-right-back-female {
+  left: 56%;
+  top: 27%;
+  width: 6%;
+  height: 5%;
+}
+
+.hotspot-spine-back-female {
+  left: 51%;
+  top: 30%;
+  width: 6%;
+  height: 28%;
+}
+
+.hotspot-upperback-back-female {
+  left: 51%;
+  top: 29%;
+  width: 28%;
+  height: 14%;
+}
+
+.hotspot-lowerback-back-female {
+  left: 51%;
+  top: 41%;
+  width: 20%;
+  height: 7%;
+}
+
+.hotspot-waist-back-female {
+  left: 51%;
+  top: 45%;
+  width: 26%;
+  height: 4%;
+}
+
+.hotspot-buttocks-back-female {
+  left: 51%;
+  top: 51%;
+  width: 26%;
+  height: 10%;
+}
+
+.hotspot-arm-left-back-female {
+  left: 38%;
+  top: 28%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-arm-right-back-female {
+  left: 64%;
+  top: 28%;
+  width: 13%;
+  height: 9%;
+}
+
+.hotspot-forearm-left-back-female {
+  left: 37%;
+  top: 42%;
+  width: 8%;
+  height: 8%;
+}
+
+.hotspot-forearm-right-back-female {
+  left: 65%;
+  top: 42%;
+  width: 8%;
+  height: 8%;
+}
+
+.hotspot-elbow-left-back-female {
+  left: 37%;
+  top: 34.5%;
+  width: 11%;
+  height: 4%;
+}
+
+.hotspot-elbow-right-back-female {
+  left: 65%;
+  top: 34.5%;
+  width: 11%;
+  height: 4%;
+}
+
+.hotspot-wrist-left-back-female {
+  left: 35%;
+  top: 50%;
+  width: 9%;
+  height: 3%;
+}
+
+.hotspot-wrist-right-back-female {
+  left: 67%;
+  top: 50%;
+  width: 9%;
+  height: 3%;
+}
+
+.hotspot-hand-left-back-female {
+  left: 34%;
+  top: 52%;
+  width: 11%;
+  height: 5%;
+}
+
+.hotspot-hand-right-back-female {
+  left: 68%;
+  top: 52%;
+  width: 11%;
+  height: 5%;
+}
+
+.hotspot-fingers-left-back-female {
+  left: 33%;
+  top: 56%;
+  width: 10%;
+  height: 4%;
+}
+
+.hotspot-fingers-right-back-female {
+  left: 69%;
+  top: 56%;
+  width: 10%;
+  height: 4%;
+}
+
+.hotspot-hip-left-back-female {
+  left: 40%;
+  top: 48%;
+  width: 8%;
+  height: 6%;
+}
+
+.hotspot-hip-right-back-female {
+  left: 62%;
+  top: 48%;
+  width: 8%;
+  height: 6%;
+}
+
+.hotspot-thigh-left-back-female {
+  left: 43%;
+  top: 60%;
+  width: 14%;
+  height: 12%;
+}
+
+.hotspot-thigh-right-back-female {
+  left: 59%;
+  top: 60%;
+  width: 14%;
+  height: 12%;
+}
+
+.hotspot-knee-left-back-female {
+  left: 44%;
+  top: 71%;
+  width: 10%;
+  height: 4%;
+}
+
+.hotspot-knee-right-back-female {
+  left: 58%;
+  top: 71%;
+  width: 10%;
+  height: 4%;
+}
+
+.hotspot-leg-left-back-female {
+  left: 44%;
+  top: 78%;
+  width: 12%;
+  height: 10%;
+}
+
+.hotspot-leg-right-back-female {
+  left: 58%;
+  top: 78%;
+  width: 12%;
+  height: 10%;
+}
+
+.hotspot-ankle-left-back-female {
+  left: 45%;
+  top: 90%;
+  width: 6%;
+  height: 4%;
+}
+
+.hotspot-ankle-right-back-female {
+  left: 57%;
+  top: 90%;
+  width: 6%;
+  height: 4%;
+}
+
+.hotspot-foot-left-back-female {
+  left: 44%;
+  top: 96%;
+  width: 11%;
+  height: 5%;
+}
+
+.hotspot-foot-right-back-female {
+  left: 58%;
+  top: 96%;
+  width: 11%;
+  height: 5%;
+}
+
+.hotspot-toes-left-back-female {
+  left: 44%;
+  top: 98%;
+  width: 8%;
+  height: 2%;
+}
+
+.hotspot-toes-right-back-female {
+  left: 58%;
+  top: 98%;
+  width: 8%;
+  height: 2%;
+}
+
+
+/* =====================================================
+   SELECTION STATUS
+===================================================== */
+
+.body-selection-status {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 14px;
+
+  font-size: 13.5px;
+  font-weight: 700;
+
+  color: var(--scope-console-text);
+}
+
+
+.selection-dot {
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: var(--scope-pulse);
+
+  box-shadow:
+    0 0 0 4px rgba(242, 114, 74, 0.25);
+
+  animation: bodyscope-dot-pulse 2s ease-in-out infinite;
+
+  flex-shrink: 0;
+}
+
+@keyframes bodyscope-dot-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(242, 114, 74, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(242, 114, 74, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selection-dot {
+    animation: none;
+  }
+}
+
+
+/* =====================================================
+   RIGHT SIDE DETAILS
+===================================================== */
+
+.body-details-section {
+  min-width: 0;
+
+  padding: 25px;
+
+  border-radius: calc(var(--radius-xl) - 3px);
+
+  background: var(--color-surface);
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =====================================================
+   DETAILS HEADING
+===================================================== */
+
+.details-heading {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+
+  border-bottom: 1px dashed var(--color-border);
+}
+
+
+.details-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: var(--radius-full);
+
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
+
+  color: #ffffff;
+
+  font-size: 18px;
+
+  box-shadow: 0 6px 16px -4px var(--color-primary);
+}
+
+
+.details-heading h2 {
+  margin: 0 0 4px;
+
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+
+  color: var(--color-ink);
+}
+
+
+.details-heading p {
+  margin: 0;
+
+  color: var(--color-muted);
+
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   SELECTED AREA
+===================================================== */
+
+.selected-area-box {
+  padding: 16px 18px;
+
+  background: var(--color-primary-lighter);
+
+  border: 1px solid var(--color-primary-light);
+  border-left: 5px solid var(--color-primary);
+
+  border-radius: var(--radius-md);
+
+  margin-bottom: 20px;
+
+  box-shadow: 0 6px 18px -10px var(--color-primary);
+}
+
+
+.selected-area-box span {
+  display: block;
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  color: var(--color-muted);
+
+  margin-bottom: 4px;
+}
+
+
+.selected-area-box strong {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+
+  color: var(--color-primary-dark);
+
+  font-size: 20px;
+}
+
+
+/* =====================================================
+   BODY PART BUTTONS
+===================================================== */
+
+.body-part-selection h3 {
+  margin: 0 0 10px;
+
+  font-size: 14px;
+
+  color: var(--color-ink);
+}
+
+
+.body-part-buttons {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  max-height: 190px;
+
+  overflow-y: auto;
+
+  padding-right: 4px;
+}
+
+
+/* Scrollbar */
+
+.body-part-buttons::-webkit-scrollbar {
+  width: 6px;
+}
+
+.body-part-buttons::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.body-part-buttons::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+
+  border-radius: 10px;
+}
+
+
+/* =====================================================
+   BODY OPTION BUTTON
+===================================================== */
+
+.body-option {
+  border: 2px solid var(--color-border);
+
+  background: var(--color-bg);
+
+  color: var(--color-body);
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  transition: 0.18s ease;
+}
+
+
+.body-option:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 14px -6px var(--color-primary);
+}
+
+
+.body-option.active {
+  background: linear-gradient(
+    120deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+
+  color: #ffffff;
+
+  border-color: var(--color-primary-dark);
+
+  box-shadow: 0 6px 16px -4px var(--color-primary);
+}
+
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
+
+.bodyscope-label {
+  display: block;
+
+  margin-top: 20px;
+}
+
+
+.bodyscope-label > span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-weight: 600;
+
+  color: var(--color-ink);
+}
+
+
+.bodyscope-label textarea {
+  width: 100%;
+
+  min-height: 130px;
+
+  resize: vertical;
+
+  box-sizing: border-box;
+
+  padding: 13px;
+
+  border: 1.5px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+
+  background: var(--color-bg);
+
+  color: var(--color-ink);
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.bodyscope-label textarea::placeholder {
+  color: var(--color-muted);
+}
+
+
+.bodyscope-label textarea:focus {
+  border-color: var(--color-primary);
+
+  background: var(--color-surface);
+}
+
+
+/* =====================================================
+   ANALYZE BUTTON
+===================================================== */
+
+.bodyscope-analyze-btn {
+  width: 100%;
+
+  margin-top: 18px;
+
+  padding: 16px 18px;
+
+  border: none;
+
+  border-radius: var(--radius-md);
+
+  background: linear-gradient(
+    115deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 55%,
+    var(--color-accent) 130%
+  );
+
+  color: white;
+
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  box-shadow:
+    var(--shadow-md),
+    0 10px 24px -8px var(--color-primary);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+
+.bodyscope-analyze-btn:hover {
+  filter: brightness(1.08);
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    var(--shadow-lg),
+    0 14px 30px -8px var(--color-primary);
+}
+
+
+.bodyscope-analyze-btn:active {
+  transform: translateY(0);
+}
+
+
+/* =====================================================
+   WARNING
+===================================================== */
+
+.bodyscope-warning {
+  max-width: 1100px;
+
+  margin: 25px auto 0;
+
+  padding: 18px 22px;
+
+  border-radius: 18px;
+
+  background: var(--color-accent-light);
+
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--color-accent);
+
+  color: var(--color-accent-dark);
+
+  line-height: 1.6;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.bodyscope-warning strong {
+  font-weight: 800;
+}
+
+
+/* =====================================================
+   OLD / OPTIONAL RESULT SECTION
+===================================================== */
+
+.bodyscope-result {
+  max-width: 1100px;
+
+  margin: 35px auto 0;
+
+  padding: 32px;
+
+  border-radius: var(--radius-xl);
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--color-primary);
+
+  box-shadow:
+    var(--shadow-md),
+    0 20px 40px -24px var(--color-primary);
+}
+
+
+.bodyscope-result h2 {
+  margin-bottom: 22px;
+
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+
+  color: var(--color-ink);
+}
+
+
+.result-section {
+  margin-bottom: 22px;
+
+  padding: 16px 18px;
+
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-primary-light);
+
+  background: var(--color-bg-alt);
+
+  transition: border-color 0.2s ease;
+}
+
+
+.result-section:last-child {
+  margin-bottom: 0;
+}
+
+
+.result-section h3 {
+  margin-bottom: 10px;
+
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  color: var(--color-primary-dark);
+}
+
+
+.result-section p {
+  line-height: 1.8;
+
+  color: var(--color-body);
+}
+
+
+.result-list {
+  margin: 0;
+
+  padding-left: 20px;
+
+  line-height: 1.8;
+
+  color: var(--color-body);
+}
+
+
+/* =====================================================
+   DISCLAIMER
+===================================================== */
+
+.bodyscope-disclaimer {
+  max-width: 1100px;
+
+  margin: 25px auto 0;
+
+  padding: 18px 22px;
+
+  border-radius: 18px;
+
+  background: var(--color-accent-light);
+
+  border: 1px solid var(--color-border);
+
+  color: var(--color-body);
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+  text-align: center;
+}
+
+
+/* =====================================================
+   RESPONSIVE - TABLET
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .bodyscope-card {
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+  }
+
+
+  .body-image-wrapper {
+    width: min(100%, 430px);
+  }
+
+
+  .body-details-section {
+    width: auto;
+  }
+}
+
+
+/* =====================================================
+   RESPONSIVE - MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .bodyscope-page {
+    padding:
+      100px 15px 60px;
+  }
+
+
+  /* Hero */
+
+  .bodyscope-hero h1 {
+    font-size: 38px;
+  }
+
+
+  .bodyscope-hero p {
+    font-size: 15px;
+  }
+
+
+  /* Main card */
+
+  .bodyscope-card {
+    padding: 18px;
+
+    border-radius: 22px;
+
+    gap: 20px;
+  }
+
+
+  /* Sections */
+
+  .body-map-section,
+  .body-details-section {
+    padding: 20px;
+
+    border-radius: 20px;
+  }
+
+
+  /* Header */
+
+  .body-map-header {
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+
+  /* Toggle */
+
+  .body-view-toggle {
+    width: 100%;
+  }
+
+
+  .view-btn {
+    flex: 1;
+  }
+
+
+  /* Image */
+
+  .body-image-wrapper {
+    width: 100%;
+
+    max-width: 430px;
+  }
+
+
+  /* Details */
+
+  .details-heading h2 {
+    font-size: 22px;
+  }
+
+
+  /* Body buttons */
+
+  .body-part-buttons {
+    max-height: 160px;
+  }
+
+
+  /* Textarea */
+
+  .bodyscope-label textarea {
+    min-height: 120px;
+  }
+
+
+  /* Warning */
+
+  .bodyscope-warning {
+    padding: 15px;
+
+    font-size: 13px;
+  }
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width: 400px) {
+
+  .bodyscope-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+
+  .bodyscope-card {
+    padding: 12px;
+  }
+
+
+  .body-map-section,
+  .body-details-section {
+    padding: 15px;
+  }
+
+
+  .bodyscope-hero h1 {
+    font-size: 32px;
+  }
+
+
+  .body-hotspot:hover {
+    transform:
+      translate(-50%, -50%)
+      scale(1.04);
+  }
+}
+/* =====================================================
+   BODYSCOPE AI - QUESTION FLOW IMPROVEMENTS
+===================================================== */
+
+/* RIGHT PANEL */
+
+.body-details-section {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =====================================================
+   QUESTION BLOCK
+===================================================== */
+
+.body-details-section {
+  counter-reset: scope-step;
+}
+
+.bodyscope-question {
+  counter-increment: scope-step;
+
+  position: relative;
+
+  margin-top: 24px;
+  padding-top: 22px;
+  padding-left: 34px;
+
+  border-top: 1px dashed var(--color-border);
+}
+
+.bodyscope-question::before {
+  content: counter(scope-step);
+
+  position: absolute;
+  left: 0;
+  top: 24px;
+
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 12px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--radius-full);
+
+  box-shadow: 0 4px 10px -3px var(--color-primary);
+}
+
+.bodyscope-question h3 {
+  margin: 0 0 5px;
+
+  font-size: 17px;
+  font-weight: 800;
+
+  color: var(--color-ink);
+}
+
+.bodyscope-question p {
+  margin: 0 0 14px;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  color: var(--color-muted);
+}
+
+
+/* =====================================================
+   BODY PART SELECTION
+===================================================== */
+
+.body-part-selection {
+  margin-top: 4px;
+}
+
+.body-part-selection h3 {
+  margin-bottom: 12px;
+}
+
+
+/* This one is ONLY for the long body-part list */
+
+.body-part-selection .body-part-buttons {
+  max-height: 180px;
+
+  overflow-y: auto;
+
+  padding-right: 6px;
+}
+
+
+/* =====================================================
+   SYMPTOMS + PAIN TYPE BUTTONS
+===================================================== */
+
+/* Remove scrolling from symptom and pain sections */
+
+.bodyscope-question .body-part-buttons {
+  max-height: none;
+
+  overflow: visible;
+
+  padding-right: 0;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   OPTION BUTTONS
+===================================================== */
+
+.body-option {
+  min-height: 38px;
+
+  padding: 8px 15px;
+
+  border-radius: 999px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  white-space: nowrap;
+}
+
+
+/* Hover */
+
+.body-option:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 14px -6px var(--color-primary);
+}
+
+
+/* Active / Selected */
+
+.body-option.active {
+  background: linear-gradient(
+    120deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+
+  color: #ffffff;
+
+  border-color: var(--color-primary-dark);
+
+  box-shadow: 0 6px 16px -4px var(--color-primary);
+}
+
+
+/* =====================================================
+   PAIN SEVERITY
+===================================================== */
+
+.pain-severity {
+  padding-bottom: 4px;
+}
+
+
+.severity-heading {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 16px;
+}
+
+
+.severity-heading h3 {
+  margin-bottom: 5px;
+}
+
+
+.severity-heading p {
+  margin-bottom: 0;
+}
+
+
+/* 6/10 box */
+
+.severity-heading strong {
+  display: flex;
+
+  align-items: baseline;
+
+  min-width: 58px;
+
+  padding: 8px 14px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--color-primary-light);
+
+  color: var(--color-primary-dark);
+
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+
+  border: none;
+}
+
+
+/* RANGE SLIDER */
+
+.pain-severity input[type="range"] {
+  width: 100%;
+
+  height: 6px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  border-radius: 20px;
+
+  background: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-accent)
+  );
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+
+/* Chrome / Edge */
+
+.pain-severity input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  background: var(--color-surface);
+  border: 3px solid var(--color-primary-dark);
+
+  cursor: pointer;
+
+  box-shadow:
+    0 2px 6px rgba(10, 50, 43, 0.3);
+}
+
+
+/* Firefox */
+
+.pain-severity input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+
+  border: 3px solid var(--color-primary-dark);
+
+  border-radius: 50%;
+
+  background: var(--color-surface);
+
+  cursor: pointer;
+}
+
+
+/* Severity labels */
+
+.severity-labels {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-top: 9px;
+
+  font-size: 12px;
+
+  color: var(--color-muted);
+}
+
+
+/* =====================================================
+   ADDITIONAL DETAILS
+===================================================== */
+
+.bodyscope-label {
+  margin-top: 24px;
+}
+
+.bodyscope-label > span {
+  font-size: 15px;
+}
+
+
+.bodyscope-label textarea {
+  min-height: 120px;
+
+  padding: 14px;
+
+  border-radius: 12px;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* =====================================================
+   ERROR MESSAGE
+===================================================== */
+
+.bodyscope-error {
+  margin-top: 18px;
+
+  padding: 12px 14px;
+
+  border-radius: var(--radius-md);
+
+  background: var(--color-danger-light);
+
+  color: var(--color-danger-dark);
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   ANALYZE BUTTON
+===================================================== */
+
+.bodyscope-analyze-btn {
+  min-height: 52px;
+
+  margin-top: 22px;
+
+  border-radius: 12px;
+
+  font-size: 15px;
+
+  letter-spacing: 0.1px;
+}
+
+
+.bodyscope-analyze-btn:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .body-details-section {
+    padding: 20px;
+  }
+
+  .details-heading h2 {
+    font-size: 22px;
+  }
+
+  .severity-heading {
+    align-items: center;
+  }
+
+  .body-option {
+    padding: 7px 11px;
+
+    font-size: 12px;
+  }
+
+}

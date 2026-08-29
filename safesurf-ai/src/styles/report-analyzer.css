@@ -1,8 +1,11 @@
 /* =========================================================
    REPORT ANALYZER
-   Relies on the design tokens (--color-*, --radius-*,
-   --shadow-*, --font-*) declared in :root inside index.css,
-   which is always loaded globally before this file.
+   Built on the site's real design tokens (--color-*, --font-*,
+   --radius-*, --shadow-*, --pulse-line, --dot-grid) declared
+   in index.css, which loads globally before this file. Follows
+   the same "clinical notebook" identity as .symptom-page:
+   hard ink borders, stamped offset shadows, clipped-corner
+   tag shapes, dot-grid + pulse-line texture.
 ========================================================= */
 
 .report-page {
@@ -18,6 +21,8 @@
   text-align: center;
   padding: 72px 24px 56px;
   background: var(--color-bg-alt);
+  background-image: var(--dot-grid);
+  background-size: 14px 14px;
   overflow: hidden;
 }
 
@@ -31,7 +36,13 @@
   background-image: var(--pulse-line);
   background-repeat: repeat-x;
   background-size: 140px 28px;
-  opacity: 0.25;
+  opacity: 0.3;
+  animation: reportPulseScroll 9s linear infinite;
+}
+
+@keyframes reportPulseScroll {
+  from { background-position-x: 0; }
+  to { background-position-x: -140px; }
 }
 
 .report-header-content {
@@ -63,7 +74,7 @@
   gap: 6px;
   padding: 8px 16px;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1.5px dashed var(--color-primary);
   color: var(--color-primary-dark);
   font-size: 0.78rem;
   font-weight: 600;
@@ -78,8 +89,22 @@
 }
 
 .report-header-content h1 span {
+  position: relative;
   font-style: italic;
   color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.report-header-content h1 span::after {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: 4px;
+  height: 10px;
+  background: var(--color-accent-light);
+  z-index: -1;
+  border-radius: var(--radius-sm);
 }
 
 .report-header-content p {
@@ -99,7 +124,7 @@
 
 .report-card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-ink);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: 40px;
@@ -119,13 +144,14 @@
   justify-content: center;
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-primary-dark);
+  border-radius: var(--radius-tag);
   background: var(--color-primary-light);
   font-size: 1.3rem;
 }
 
 .report-card-title h2 {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
 }
 
 .report-card-title p {
@@ -165,10 +191,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-primary-dark);
+  border-radius: var(--radius-tag);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
   font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .report-upload-box h3 {
@@ -203,13 +231,16 @@
   color: #fff;
   font-weight: 600;
   font-size: 0.88rem;
-  border-radius: var(--radius-full);
-  transition: background var(--transition), transform var(--transition);
+  border: 2px solid var(--color-primary-darker);
+  border-radius: var(--radius-tag);
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
 }
 
 .report-upload-btn:hover {
   background: var(--color-primary-dark);
-  transform: translateY(-2px);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
 }
 
 .report-file-types {
@@ -221,13 +252,19 @@
 
 /* --- selected file row --- */
 
+.selected-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .selected-file {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
   text-align: left;
   max-width: 380px;
@@ -304,6 +341,7 @@
   color: #fff;
   font-weight: 600;
   font-size: 1rem;
+  border: 2px solid var(--color-primary-darker);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   margin-bottom: 20px;
@@ -312,15 +350,58 @@
 
 .report-analyze-btn:hover:not(:disabled) {
   background: var(--color-primary-dark);
-  transform: translateY(-2px);
+  transform: translate(-3px, -3px);
   box-shadow: var(--shadow-lg);
 }
 
 .report-analyze-btn:disabled {
   background: var(--color-border-strong);
   color: var(--color-muted);
+  border-color: var(--color-border-strong);
   box-shadow: none;
   cursor: not-allowed;
+  transform: none;
+}
+
+.report-analyze-btn.is-analyzing {
+  background: var(--color-primary-dark);
+  cursor: progress;
+}
+
+.report-analyze-btn .analyzing-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.pulse-beat {
+  display: inline-flex;
+  align-items: center;
+  width: 26px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.pulse-beat svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.pulse-beat path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: reportPulseDraw 1.4s linear infinite;
+}
+
+@keyframes reportPulseDraw {
+  to { stroke-dashoffset: -60; }
 }
 
 /* --- info box --- */
@@ -329,7 +410,7 @@
   display: flex;
   gap: 14px;
   padding: 18px 20px;
-  background: var(--color-bg-alt);
+  background: var(--color-accent-light);
   border-radius: var(--radius-md);
 }
 
@@ -378,14 +459,14 @@
     padding: 32px 18px;
   }
 }
+
 /* =========================================================
    REPORT ANALYSIS RESULTS
 ========================================================= */
 
 .report-results {
-  margin-top: 34px;
+  margin-top: 8px;
 }
-
 
 /* =========================================================
    RESULTS HEADER
@@ -394,94 +475,73 @@
 .report-results-header {
   padding: 28px;
   margin-bottom: 24px;
-
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-lighter),
-    var(--color-bg-alt)
-  );
-
-  border: 1px solid var(--color-border);
+  background: var(--color-primary-lighter);
+  border: 2px solid var(--color-ink);
   border-radius: var(--radius-lg);
 }
 
 .report-results-badge {
   display: inline-flex;
   align-items: center;
-
-  padding: 7px 13px;
-
-  border-radius: var(--radius-full);
-
-  background: var(--color-primary-light);
+  gap: 6px;
+  padding: 7px 15px;
+  margin-bottom: 14px;
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-primary);
   color: var(--color-primary-dark);
-
   font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-full);
 }
 
 .report-results-header h2 {
-  margin-top: 14px;
-  margin-bottom: 7px;
-
-  font-size: 1.55rem;
+  font-size: 1.35rem;
+  margin-bottom: 6px;
 }
 
 .report-results-header p {
+  font-size: 0.9rem;
   color: var(--color-muted);
-  font-size: 0.88rem;
-  line-height: 1.6;
+  line-height: 1.55;
+  max-width: 46ch;
 }
 
-
 /* =========================================================
-   RESULT SECTION
+   RESULT SECTIONS
 ========================================================= */
 
 .report-result-section {
-  margin-bottom: 20px;
-
   padding: 24px;
-
-  background: var(--color-surface);
-
-  border: 1px solid var(--color-border);
-
+  margin-bottom: 16px;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-lg);
-
-  box-shadow: var(--shadow-sm);
 }
 
 .report-result-section-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .report-result-section-title span {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 34px;
   height: 34px;
-
-  border-radius: var(--radius-sm);
-
+  border-radius: var(--radius-tag);
+  border: 1.5px solid var(--color-primary-dark);
   background: var(--color-primary-light);
-
   font-size: 1rem;
 }
 
 .report-result-section-title h3 {
   margin: 0;
-
-  font-size: 1rem;
+  font-size: 1.02rem;
 }
-
 
 /* =========================================================
    RESULT TEXT
@@ -489,20 +549,15 @@
 
 .report-result-text {
   margin: 0;
-
-  color: var(--color-muted);
-
-  font-size: 0.9rem;
-
+  color: var(--color-body);
+  font-size: 0.92rem;
   line-height: 1.75;
-
   white-space: pre-line;
 }
 
 .report-explanation {
   line-height: 1.8;
 }
-
 
 /* =========================================================
    IMPORTANT VALUES
@@ -516,21 +571,13 @@
 
 .report-value-item {
   display: grid;
-
   grid-template-columns: 1fr auto auto;
-
   align-items: center;
-
   gap: 18px;
-
   padding: 15px 16px;
-
-  background: var(--color-bg);
-
-  border: 1px solid var(--color-border);
-
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-
   transition:
     border-color var(--transition-fast),
     transform var(--transition-fast),
@@ -539,18 +586,19 @@
 
 .report-value-item:hover {
   border-color: var(--color-primary);
-  transform: translateY(-1px);
+  transform: translate(-2px, -2px);
   box-shadow: var(--shadow-sm);
 }
 
 .report-value-name {
-  font-size: 0.86rem;
+  font-size: 0.87rem;
   font-weight: 600;
   color: var(--color-ink);
 }
 
 .report-value-result {
-  font-size: 0.86rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-ink);
   white-space: nowrap;
@@ -558,13 +606,9 @@
 
 .report-value-status {
   min-width: 70px;
-
   padding: 6px 10px;
-
   border-radius: var(--radius-full);
-
   text-align: center;
-
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -584,7 +628,6 @@
   color: var(--color-accent-dark);
 }
 
-
 /* =========================================================
    RECOMMENDATIONS
 ========================================================= */
@@ -592,53 +635,39 @@
 .report-recommendations {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .report-recommendation-item {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-
   padding: 14px 15px;
-
-  background: var(--color-bg);
-
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-
-  border: 1px solid var(--color-border);
 }
 
 .report-recommendation-item > span {
   flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 24px;
   height: 24px;
-
   border-radius: var(--radius-full);
-
   background: var(--color-primary-light);
-
   color: var(--color-primary-dark);
-
   font-size: 0.75rem;
   font-weight: 700;
 }
 
 .report-recommendation-item p {
   margin: 0;
-
-  color: var(--color-muted);
-
+  color: var(--color-body);
   font-size: 0.86rem;
-
   line-height: 1.65;
 }
-
 
 /* =========================================================
    ANALYSIS DISCLAIMER
@@ -648,47 +677,31 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-
   padding: 18px;
-
   margin-bottom: 20px;
-
   background: var(--color-bg-alt);
-
-  border: 1px solid var(--color-border);
-
   border-radius: var(--radius-md);
 }
 
 .report-analysis-disclaimer > span {
   flex-shrink: 0;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 28px;
   height: 28px;
-
   border-radius: var(--radius-full);
-
   background: var(--color-surface);
-
   color: var(--color-accent-dark);
-
   font-size: 0.85rem;
 }
 
 .report-analysis-disclaimer p {
   margin: 0;
-
   color: var(--color-muted);
-
   font-size: 0.78rem;
-
   line-height: 1.65;
 }
-
 
 /* =========================================================
    RESULTS BUTTON
@@ -698,13 +711,11 @@
   margin-bottom: 0;
 }
 
-
 /* =========================================================
    RESPONSIVE RESULTS
 ========================================================= */
 
 @media (max-width: 640px) {
-
   .report-results-header {
     padding: 22px;
   }
@@ -725,149 +736,36 @@
   .report-value-status {
     width: fit-content;
   }
-
-}
-.ai-page {
-  padding: 120px 20px 80px;
-  min-height: 100vh;
-  background: var(--color-bg);
-  color: var(--color-body);
 }
 
-.ai-hero {
-  text-align: center;
-  margin-bottom: 40px;
-}
+/* =========================================================
+   DARK THEME
+   Mirrors the overrides used elsewhere on the site (e.g.
+   .faq-section) — most of this page already runs entirely on
+   --color-* tokens, so it repaints for free. These are just
+   the spots that need an explicit nudge.
+========================================================= */
 
-.ai-badge {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 30px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-body);
-  margin-bottom: 20px;
-}
-
-.ai-hero h1 {
-  font-size: 52px;
-  margin-bottom: 20px;
-  color: var(--color-ink);
-}
-
-.ai-hero span {
-  color: var(--color-primary);
-  font-style: italic;
-}
-
-.ai-hero p {
-  max-width: 600px;
-  margin: auto;
-  color: var(--color-body);
-}
-
-.ai-card {
-  max-width: 900px;
-  margin: auto;
-  padding: 30px;
-  border-radius: 30px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
-}
-
-.question-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.question-buttons button {
-  padding: 12px 18px;
-  border-radius: 30px;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
-  color: var(--color-body);
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.question-buttons button:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
-}
-
-.chat-box {
-  height: 500px;
-  overflow-y: auto;
-  padding: 30px;
-  border: 1px solid var(--color-border);
-  border-radius: 25px;
-  margin: 25px 0;
-  background: var(--color-bg);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.chat-message {
-  max-width: 80%;
-  padding: 20px;
-  border-radius: 20px;
-  line-height: 1.8;
-  font-size: 16px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.chat-message.user {
-  margin-left: auto;
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.chat-message.ai {
-  margin-right: auto;
-  background: var(--color-bg-alt);
-  color: var(--color-body);
-  border: 1px solid var(--color-border);
-}
-
-.input-section {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.input-section input {
-  flex: 1;
-  padding: 18px 25px;
-  border-radius: 40px;
-  border: 1px solid var(--color-border);
-  outline: none;
-  background: var(--color-bg);
-  color: var(--color-ink);
-}
-
-.input-section input::placeholder {
-  color: var(--color-muted);
-}
-
-.input-section button {
-  padding: 15px 25px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.ai-warning {
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 20px;
+body.dark-theme .report-header-content h1 span::after {
   background: var(--color-accent-light);
-  color: var(--color-accent-dark);
+  opacity: 0.5;
+}
+
+body.dark-theme .report-results-header {
+  background: var(--color-primary-lighter);
+}
+
+body.dark-theme .report-value-result {
+  color: var(--color-ink);
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .report-header::after,
+  .pulse-beat path {
+    animation: none;
+  }
 }

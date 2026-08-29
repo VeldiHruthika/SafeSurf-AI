@@ -11,9 +11,8 @@ function ReportAnalyzer({
 }) {
 
   const fileInputRef = useRef(null);
-
-  const [selectedFile, setSelectedFile] =
-    useState(null);
+const [selectedFiles, setSelectedFiles] =
+  useState([]);
 
   const [error, setError] =
     useState("");
@@ -31,35 +30,58 @@ function ReportAnalyzer({
 
   const handleFileChange = (event) => {
 
-    const file =
-      event.target.files?.[0];
+  const files = Array.from(
+    event.target.files || []
+  );
 
-    if (!file) {
-      return;
-    }
+  if (files.length === 0) {
+    return;
+  }
 
-    setError("");
-    setAnalysis(null);
+  setError("");
+  setAnalysis(null);
 
-    const allowedTypes = [
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-    ];
+  const allowedTypes = [
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+  ];
 
-    if (!allowedTypes.includes(file.type)) {
+  const invalidFile = files.find(
+    (file) =>
+      !allowedTypes.includes(file.type)
+  );
 
-      setSelectedFile(null);
+  if (invalidFile) {
 
-      setError(
-        "Please upload a PDF, JPG, or PNG file."
-      );
+    setError(
+      "Please upload only PDF, JPG, or PNG files."
+    );
 
-      return;
-    }
+    return;
+  }
 
-    setSelectedFile(file);
-  };
+  const oversizedFile = files.find(
+    (file) =>
+      file.size > 10 * 1024 * 1024
+  );
+
+  if (oversizedFile) {
+
+    setError(
+      "Each file must be smaller than 10 MB."
+    );
+
+    return;
+  }
+
+  setSelectedFiles((prev) => [
+    ...prev,
+    ...files,
+  ]);
+
+  event.target.value = "";
+};
 
 
   // =====================================================
@@ -71,143 +93,145 @@ function ReportAnalyzer({
     fileInputRef.current?.click();
 
   };
+// =====================================================
+// REMOVE FILE
+// =====================================================
 
+const removeFile = (indexToRemove) => {
 
-  // =====================================================
-  // REMOVE FILE
-  // =====================================================
+  setSelectedFiles((prev) =>
+    prev.filter(
+      (_, index) =>
+        index !== indexToRemove
+    )
+  );
 
-  const removeFile = () => {
+  setError("");
 
-    setSelectedFile(null);
-    setAnalysis(null);
-    setError("");
+};
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+// =====================================================
+// ANALYZE REPORTS
+// =====================================================
 
-  };
+const analyzeReport = async () => {
 
+  if (selectedFiles.length === 0) {
+    setError(
+      "Please upload at least one medical report."
+    );
 
-  // =====================================================
-  // ANALYZE REPORT
-  // =====================================================
+    return;
+  }
 
-  const analyzeReport = async () => {
+  setError("");
+  setAnalysis(null);
+  setIsAnalyzing(true);
 
-    if (!selectedFile) {
-      return;
-    }
+  try {
 
-    setError("");
-    setAnalysis(null);
-    setIsAnalyzing(true);
+    const formData = new FormData();
 
-    try {
-
-      const formData =
-        new FormData();
+    selectedFiles.forEach((file) => {
 
       formData.append(
-        "report",
-        selectedFile
+        "reports",
+        file
       );
 
-
-      const response =
-        await fetch(
-          "http://localhost:5000/api/report-analyze",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-
-      const data =
-        await response.json();
-
-
-      console.log(
-        "Report analysis response:",
-        data
-      );
-
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-
-        throw new Error(
-          data.error ||
-          "Failed to analyze the report."
-        );
-
-      }
-
-
-      if (!data.analysis) {
-
-        throw new Error(
-          "No analysis was returned by the server."
-        );
-
-      }
-
-
-      setAnalysis(
-        data.analysis
-      );
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Report analysis error:",
-        error
-      );
-
-      setError(
-        error.message ||
-        "Failed to analyze the report."
-      );
-
-    }
-
-    finally {
-
-      setIsAnalyzing(false);
-
-    }
-
-  };
-
-
-  // =====================================================
-  // ANALYZE ANOTHER REPORT
-  // =====================================================
-
-  const analyzeAnotherReport = () => {
-
-    setSelectedFile(null);
-    setAnalysis(null);
-    setError("");
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
     });
 
-  };
+
+    const response =
+      await fetch(
+        "http://localhost:5000/api/report-analyze",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
 
+    const data =
+      await response.json();
+
+
+    console.log(
+      "Report analysis response:",
+      data
+    );
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data.error ||
+        "Failed to analyze the reports."
+      );
+
+    }
+
+
+    if (!data.analysis) {
+
+      throw new Error(
+        "No analysis was returned by the server."
+      );
+
+    }
+
+
+    setAnalysis(
+      data.analysis
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Report analysis error:",
+      error
+    );
+
+    setError(
+      error.message ||
+      "Failed to analyze the reports."
+    );
+
+  }
+
+  finally {
+
+    setIsAnalyzing(false);
+
+  }
+
+};
+
+// =====================================================
+// ANALYZE ANOTHER REPORT
+// =====================================================
+
+const analyzeAnotherReport = () => {
+
+  setSelectedFiles([]);
+  setAnalysis(null);
+  setError("");
+
+  if (fileInputRef.current) {
+    fileInputRef.current.value = "";
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+
+};
   return (
     <div className="report-page">
 
@@ -300,117 +324,111 @@ function ReportAnalyzer({
 
             <div
               className={
-                selectedFile
-                  ? "report-upload-box has-file"
-                  : "report-upload-box"
+                selectedFiles.length > 0
+  ? "report-upload-box has-file"
+  : "report-upload-box"
               }
             >
 
               <div className="upload-icon">
                 ↑
               </div>
+<h3>
 
+  {selectedFiles.length > 0
+    ? `${selectedFiles.length} Report${
+        selectedFiles.length > 1 ? "s" : ""
+      } Selected`
+    : "Upload your reports"}
 
-              <h3>
+</h3><p>
 
-                {selectedFile
-                  ? "Report Selected"
-                  : "Upload your report"}
+  {selectedFiles.length > 0
+    ? "Your reports are ready for analysis."
+    : "Choose one or more PDF, JPG, or PNG files from your device."}
 
-              </h3>
-
-
-              <p>
-
-                {selectedFile
-                  ? "Your file is ready for analysis."
-                  : "Drag and drop your file here or choose a file from your device."}
-
-              </p>
-
-
+</p>
               <input
-                ref={fileInputRef}
-                type="file"
-                accept="
-                  .pdf,
-                  .jpg,
-                  .jpeg,
-                  .png,
-                  application/pdf,
-                  image/jpeg,
-                  image/png
-                "
-                onChange={handleFileChange}
-                className="report-file-input"
-              />
+  ref={fileInputRef}
+  type="file"
+  accept=".pdf,.jpg,.jpeg,.png"
+  multiple
+  onChange={handleFileChange}
+  className="report-file-input"
+/>
 
 
               {/* CHOOSE FILE */}
+<button
+  type="button"
+  className="report-upload-btn"
+  onClick={openFilePicker}
+>
 
-              {!selectedFile && (
+  {selectedFiles.length > 0
+    ? "＋ Add More Reports"
+    : "Choose Reports"}
 
-                <button
-                  type="button"
-                  className="report-upload-btn"
-                  onClick={openFilePicker}
-                >
-                  Choose File
-                </button>
-
-              )}
-
-
+</button>
               {/* SELECTED FILE */}
+{selectedFiles.length > 0 && (
 
-              {selectedFile && (
+  <div className="selected-files-list">
 
-                <div className="selected-file">
+    {selectedFiles.map(
+      (file, index) => (
 
-                  <div className="selected-file-icon">
-                    📄
-                  </div>
+        <div
+          className="selected-file"
+          key={`${file.name}-${index}`}
+        >
 
+          <div className="selected-file-icon">
+            📄
+          </div>
 
-                  <div className="selected-file-info">
+          <div className="selected-file-info">
 
-                    <strong>
-                      {selectedFile.name}
-                    </strong>
+            <strong>
+              {file.name}
+            </strong>
 
-                    <span>
-                      {(
-                        selectedFile.size /
-                        1024 /
-                        1024
-                      ).toFixed(2)}{" "}
-                      MB
-                    </span>
+            <span>
+              {(
+                file.size /
+                1024 /
+                1024
+              ).toFixed(2)} MB
+            </span>
 
-                  </div>
+          </div>
 
+          <button
+            type="button"
+            className="remove-file-btn"
+            onClick={() =>
+              removeFile(index)
+            }
+            aria-label={`Remove ${file.name}`}
+          >
+            ×
+          </button>
 
-                  <button
-                    type="button"
-                    className="remove-file-btn"
-                    onClick={removeFile}
-                  >
-                    ×
-                  </button>
+        </div>
 
-                </div>
+      )
+    )}
 
-              )}
+  </div>
 
+)}{selectedFiles.length === 0 && (
 
-              {!selectedFile && (
+  <span className="report-file-types">
+    Supported formats: PDF, JPG, JPEG, PNG
+    • Maximum 10 MB per file
+  </span>
 
-                <span className="report-file-types">
-                  PDF, JPG or PNG
-                </span>
-
-              )}
-
+)}
             </div>
 
           )}
@@ -439,9 +457,9 @@ function ReportAnalyzer({
               type="button"
               className="report-analyze-btn"
               disabled={
-                !selectedFile ||
-                isAnalyzing
-              }
+  selectedFiles.length === 0 ||
+  isAnalyzing
+}
               onClick={analyzeReport}
             >
 

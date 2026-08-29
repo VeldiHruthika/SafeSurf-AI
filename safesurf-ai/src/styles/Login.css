@@ -15,6 +15,8 @@
 
 /* =====================================================
    LOGIN AREA
+   Subtle dot-grid texture behind the card, same treatment
+   as other large flat panels across the app.
    ===================================================== */
 
 .ss-auth {
@@ -27,6 +29,7 @@
   justify-content: center;
 
   position: relative;
+  overflow: hidden;
 
   background: var(--color-bg);
   color: var(--color-body);
@@ -34,6 +37,18 @@
   transition:
     background-color var(--transition),
     color var(--transition);
+}
+
+.ss-auth::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background-image: var(--dot-grid);
+  background-size: 22px 22px;
+
+  pointer-events: none;
 }
 
 
@@ -46,6 +61,7 @@
 
   top: 30px;
   left: 30px;
+  z-index: 2;
 
   display: inline-flex;
   align-items: center;
@@ -54,11 +70,10 @@
 
   color: var(--color-body);
 
-  text-decoration: none;
-
   font-size: 14px;
+  font-weight: 600;
 
-  transition: 0.3s;
+  transition: color var(--transition), transform var(--transition);
 }
 
 .ss-back:hover {
@@ -70,25 +85,38 @@
 
 /* =====================================================
    CARD
+   Stamped-ticket card: hard ink border, offset shadow,
+   a faint tilt that settles flat on hover/focus — same
+   language as .health-card elsewhere in the app.
    ===================================================== */
 
 .ss-card {
   background: var(--color-surface);
 
-  border: 1px solid var(--color-border);
-
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
 }
 
 .ss-auth-card {
+  position: relative;
+  z-index: 1;
+
   width: 100%;
-  max-width: 480px;
+  max-width: 460px;
 
-  padding: 42px;
-
-  border-radius: 30px;
+  padding: 46px 40px 40px;
 
   text-align: center;
+
+  transform: rotate(-1deg);
+
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
+}
+
+.ss-auth-card:hover,
+.ss-auth-card:focus-within {
+  transform: rotate(0deg);
 }
 
 
@@ -100,37 +128,62 @@
   width: 58px;
   height: 58px;
 
-  margin: 0 auto 18px;
+  margin: 0 auto 20px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 18px;
+  border-radius: var(--radius-tag);
+  border: 2px solid var(--color-primary-darker);
 
   background: var(--color-primary-light);
-
   color: var(--color-primary);
+
+  box-shadow: var(--shadow-sm);
 }
 
 
 /* =====================================================
    EYEBROW
+   Same dashed-pill "hero badge" language used above the
+   homepage headline, with the small accent dot.
    ===================================================== */
 
 .ss-eyebrow {
+  position: relative;
+
   display: inline-flex;
   align-items: center;
 
-  margin-bottom: 12px;
+  padding: 7px 18px 7px 26px;
 
+  margin-bottom: 16px;
+
+  background: var(--color-primary-light);
   color: var(--color-primary);
 
-  font-size: 13px;
+  border: 1.5px dashed var(--color-primary);
+  border-radius: var(--radius-full);
 
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
 
-  letter-spacing: 0.5px;
+.ss-eyebrow::before {
+  content: "";
+
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 6px;
+  height: 6px;
+
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
 }
 
 
@@ -143,14 +196,17 @@
 
   color: var(--color-ink);
 
-  font-size: 32px;
-
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 
 /* =====================================================
    LABEL
+   Small-caps intake-form label, matching the rest of the
+   "clinical notebook" form styling elsewhere in the app.
    ===================================================== */
 
 .ss-label {
@@ -160,11 +216,12 @@
 
   text-align: left;
 
-  color: var(--color-body);
+  color: var(--color-ink);
 
-  font-size: 14px;
-
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 
@@ -178,7 +235,7 @@
   display: flex;
   align-items: center;
 
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .ss-input-wrap svg {
@@ -201,24 +258,23 @@
 
   box-sizing: border-box;
 
-  padding: 16px 18px;
+  padding: 15px 18px;
 
-  border: 1px solid var(--color-border);
-
-  border-radius: 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
 
   outline: none;
 
   background: var(--color-bg);
-
   color: var(--color-ink);
 
   font-size: 15px;
+  font-weight: 500;
 
   transition:
-    border-color 0.3s,
-    box-shadow 0.3s,
+    border-color var(--transition),
     background-color var(--transition),
+    box-shadow var(--transition),
     color var(--transition);
 }
 
@@ -228,13 +284,14 @@
 
 .ss-input::placeholder {
   color: var(--color-muted);
+  font-weight: 400;
 }
 
 .ss-input:focus {
   border-color: var(--color-primary);
+  background: var(--color-surface);
 
-  box-shadow:
-    0 0 0 3px var(--color-primary-light);
+  box-shadow: var(--shadow-focus);
 }
 
 
@@ -245,16 +302,17 @@
 .ss-otp {
   text-align: center;
 
-  font-size: 24px;
-
+  font-family: var(--font-display);
+  font-size: 26px;
   font-weight: 600;
-
-  letter-spacing: 8px;
+  letter-spacing: 10px;
 }
 
 
 /* =====================================================
    BUTTON
+   Matches .primary-btn: hard border, stamped offset
+   shadow that lifts on hover, presses in on click.
    ===================================================== */
 
 .ss-btn {
@@ -262,41 +320,49 @@
 
   padding: 16px 24px;
 
-  border: none;
-
-  border-radius: 30px;
+  border: 2px solid var(--color-primary-darker);
+  border-radius: var(--radius-tag);
 
   background: var(--color-primary);
-
   color: #fff;
 
   font-size: 15px;
-
   font-weight: 600;
 
-  cursor: pointer;
+  box-shadow: var(--shadow-md);
 
   transition:
-    background 0.3s,
-    transform 0.3s,
-    box-shadow 0.3s;
+    background var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
 }
 
 .ss-btn:hover:not(:disabled) {
   background: var(--color-primary-dark);
 
-  transform: translateY(-2px);
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.ss-btn:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 
 .ss-btn:disabled {
-  opacity: 0.6;
+  background: var(--color-border-strong);
+  color: var(--color-muted);
+  border-color: var(--color-border-strong);
 
+  box-shadow: none;
   cursor: not-allowed;
 }
 
 
 /* =====================================================
    ERROR
+   Ticket-stub chip with a dashed left edge, same motif
+   as the selected-symptom tags elsewhere in the app.
    ===================================================== */
 
 .ss-error {
@@ -309,17 +375,20 @@
 
   padding: 12px 14px;
 
-  border-radius: 14px;
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
 
-  background: var(--color-accent-light);
-
-  color: var(--color-accent-dark);
-
-  border: 1px solid var(--color-border);
+  border-left: 3px dashed var(--color-danger-dark);
+  border-radius: var(--radius-sm);
 
   text-align: left;
 
-  font-size: 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.ss-error svg {
+  flex-shrink: 0;
 }
 
 
@@ -332,27 +401,31 @@
 
   color: var(--color-muted);
 
-  font-size: 14px;
-
+  font-size: 13.5px;
   line-height: 1.6;
 }
 
 .ss-hint strong {
   color: var(--color-ink);
+  font-weight: 700;
 }
 
 .ss-hint a,
 .ss-foot a {
   color: var(--color-primary);
 
-  font-weight: 600;
-
+  font-weight: 700;
   text-decoration: none;
+
+  border-bottom: 1.5px dashed var(--color-primary);
+  padding-bottom: 1px;
+
+  transition: border-color var(--transition-fast);
 }
 
 .ss-hint a:hover,
 .ss-foot a:hover {
-  text-decoration: underline;
+  border-bottom-style: solid;
 }
 
 
@@ -369,13 +442,10 @@
 
   color: var(--color-primary);
 
-  font-size: 14px;
+  font-size: 13.5px;
+  font-weight: 700;
 
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: 0.3s;
+  transition: transform var(--transition);
 }
 
 .ss-linkbtn:hover {
@@ -385,14 +455,19 @@
 
 /* =====================================================
    FOOT TEXT
+   Dashed rule above, like a torn ticket stub separating
+   the card body from the sign-up prompt.
    ===================================================== */
 
 .ss-foot {
-  margin: 28px 0 0;
+  margin: 30px 0 0;
+  padding-top: 22px;
+
+  border-top: 1.5px dashed var(--color-border-strong);
 
   color: var(--color-muted);
 
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
 
@@ -414,13 +489,15 @@
   }
 
   .ss-auth-card {
-    padding: 30px 22px;
+    padding: 34px 24px 30px;
 
-    border-radius: 24px;
+    border-radius: var(--radius-lg);
+
+    transform: rotate(0deg);
   }
 
   .ss-title {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .ss-otp {

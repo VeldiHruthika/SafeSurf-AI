@@ -1,10 +1,11 @@
-
 import { useState } from "react";
 function Home({
   openSymptomAnalyzer,
-  openReportAnalyzer,
   openPharmacy,
-  openAIAssistant
+  openAIAssistant,
+  openBodyScope,
+  openPersonalizedCarePlanner,
+  openArticles
 }) {
   const [openFAQ, setOpenFAQ] = useState(null);
 
@@ -170,6 +171,27 @@ function Home({
             </p>
 
           </button>
+          {/* =================================================
+    BODYSCOPE AI
+================================================= */}
+
+<button
+  className="service-card"
+  onClick={openBodyScope}
+>
+  <div className="service-icon">
+    🫀
+  </div>
+
+  <h3>
+    BodyScope AI
+  </h3>
+
+  <p>
+    Explore an interactive body map, select any body area,
+    and describe what you're experiencing.
+  </p>
+</button>
 
 
           {/* =================================================
@@ -195,27 +217,52 @@ function Home({
   </p>
 
 </button>
+{/* =================================================
+    PERSONALIZED CARE PLANNER
+================================================= */}
+
 <button
   className="service-card"
-  onClick={openReportAnalyzer}
+  onClick={openPersonalizedCarePlanner}
 >
 
   <div className="service-icon">
-    📄
+    🩺
   </div>
 
   <h3>
-    Report Analyzer
+    Personalized Care Planner
   </h3>
 
   <p>
-    Upload medical reports and let AI explain
-    your results.
+    Build your health profile, analyze medical reports,
+    and receive personalized lifestyle and healthcare guidance.
   </p>
 
 </button>
+{/* =================================================
+    ARTICLES
+================================================= */}
 
+<button
+  className="service-card"
+  onClick={openArticles}
+>
 
+  <div className="service-icon">
+    📖
+  </div>
+
+  <h3>
+    Health Articles
+  </h3>
+
+  <p>
+    Browse easy-to-understand articles on common
+    conditions, symptoms, and management tips.
+  </p>
+
+</button>
           {/* =================================================
               SPECIALISTS
           ================================================= */}

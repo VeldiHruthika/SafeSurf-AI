@@ -47,12 +47,14 @@ function AIHealthAssistant() {
       const data = await response.json();
 
       setMessages((previous) => [
-        ...previous,
-        {
-          sender: "ai",
-          text: data.reply
-        }
-      ]);
+  ...previous,
+  {
+    sender: "ai",
+    text: data.reply,
+    recommendedFeature:
+      data.recommendedFeature || "NONE"
+  }
+]);
     } catch {
       setMessages((previous) => [
         ...previous,

@@ -1,4 +1,5 @@
 .ai-page {
+  position: relative;
   padding: 120px 20px 80px;
   min-height: 100vh;
   background: var(--color-bg);
@@ -9,29 +10,63 @@
 }
 
 .ai-hero {
+  position: relative;
   text-align: center;
   margin-bottom: 40px;
 }
 
 .ai-badge {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 30px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-body);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px 10px 28px;
+  border-radius: var(--radius-full);
+  border: 1.5px dashed var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   margin-bottom: 20px;
 }
 
+.ai-badge::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
 .ai-hero h1 {
-  font-size: 52px;
+  font-size: clamp(2.2rem, 4.5vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin-bottom: 20px;
   color: var(--color-ink);
 }
 
 .ai-hero span {
+  position: relative;
   color: var(--color-primary);
   font-style: italic;
+}
+
+.ai-hero span::after {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: 6px;
+  height: 10px;
+  background: var(--color-accent-light);
+  z-index: -1;
+  border-radius: var(--radius-sm);
 }
 
 .ai-hero p {
@@ -41,13 +76,35 @@
 }
 
 .ai-card {
+  position: relative;
   max-width: 900px;
   margin: auto;
-  padding: 30px;
-  border-radius: 30px;
+  padding: 34px;
+  border-radius: var(--radius-xl);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-ink);
   box-shadow: var(--shadow-lg);
+}
+
+.ai-card::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 24px;
+  right: 24px;
+  height: 12px;
+  background-image: var(--pulse-line);
+  background-repeat: repeat-x;
+  background-size: 100px 20px;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.ai-card > h3 {
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: var(--color-ink);
+  margin-bottom: 4px;
 }
 
 .question-buttons {
@@ -59,55 +116,64 @@
 
 .question-buttons button {
   padding: 12px 18px;
-  border-radius: 30px;
-  border: 1px solid var(--color-border);
+  border-radius: var(--radius-tag);
+  border: 1.5px solid var(--color-border-strong);
   background: var(--color-bg);
   color: var(--color-body);
+  font-size: 0.88rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
 }
 
 .question-buttons button:hover {
-  transform: translateY(-2px);
+  transform: translate(-2px, -2px);
   border-color: var(--color-primary);
   background: var(--color-primary-light);
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-sm);
 }
 
 .chat-box {
   height: 500px;
   overflow-y: auto;
   padding: 30px;
-  border: 1px solid var(--color-border);
-  border-radius: 25px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
   margin: 25px 0;
   background: var(--color-bg);
+  background-image: var(--dot-grid);
+  background-size: 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
 .chat-message {
+  position: relative;
   max-width: 80%;
-  padding: 20px;
-  border-radius: 20px;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
   line-height: 1.8;
   font-size: 16px;
   white-space: pre-wrap;
   word-wrap: break-word;
+  box-shadow: var(--shadow-sm);
 }
 
 .chat-message.user {
   margin-left: auto;
   background: var(--color-primary);
   color: #fff;
+  border: 2px solid var(--color-primary-darker);
+  border-radius: var(--radius-tag);
 }
 
 .chat-message.ai {
   margin-right: auto;
-  background: var(--color-bg-alt);
+  background: var(--color-surface);
   color: var(--color-body);
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
 }
 
 .input-section {
@@ -119,8 +185,8 @@
 .input-section input {
   flex: 1;
   padding: 18px 25px;
-  border-radius: 40px;
-  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
   outline: none;
   background: var(--color-bg);
   color: var(--color-ink);
@@ -137,22 +203,65 @@
 
 .input-section button {
   padding: 15px 25px;
-  border: none;
-  border-radius: 30px;
+  border: 2px solid var(--color-primary-darker);
+  border-radius: var(--radius-tag);
   cursor: pointer;
   background: var(--color-primary);
   color: #fff;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
 }
 
 .input-section button:hover {
   background: var(--color-primary-dark);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
+}
+
+.input-section button:last-child {
+  background: transparent;
+  color: var(--color-primary-dark);
+  border: 1.5px dashed var(--color-border-strong);
+  box-shadow: none;
+}
+
+.input-section button:last-child:hover {
+  border-color: var(--color-primary);
+  border-style: solid;
+  background: var(--color-primary-lighter);
 }
 
 .ai-warning {
   margin-top: 20px;
-  padding: 20px;
-  border-radius: 20px;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
   background: var(--color-accent-light);
   color: var(--color-accent-dark);
-  border: 1px solid var(--color-border);
+  border: 1.5px dashed var(--color-accent-dark);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .ai-card {
+    padding: 24px 18px;
+  }
+
+  .chat-box {
+    height: 420px;
+    padding: 20px;
+  }
+
+  .chat-message {
+    max-width: 92%;
+  }
+
+  .input-section {
+    flex-wrap: wrap;
+  }
+
+  .input-section input {
+    flex-basis: 100%;
+  }
 }
