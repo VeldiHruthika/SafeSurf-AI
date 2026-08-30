@@ -1,6 +1,52 @@
 import { useRef, useState } from "react";
 import "../styles/PersonalizedCarePlanner.css";
 
+// =====================================================
+// BMI HELPER
+// Mirrors the backend calculation so Step 4 can show a
+// quick Health Metrics card without waiting on the AI.
+// =====================================================
+
+function calculateBMI(heightCm, weightKg) {
+
+  const heightNum = parseFloat(heightCm);
+  const weightNum = parseFloat(weightKg);
+
+  if (
+    !heightNum ||
+    !weightNum ||
+    heightNum <= 0 ||
+    weightNum <= 0
+  ) {
+    return null;
+  }
+
+  const heightMeters = heightNum / 100;
+
+  const value =
+    Math.round(
+      (weightNum / (heightMeters * heightMeters)) * 10
+    ) / 10;
+
+  let category = "Obesity range";
+  let badgeClass = "care-plan-priority-high";
+
+  if (value < 18.5) {
+    category = "Underweight";
+    badgeClass = "care-plan-priority-moderate";
+  } else if (value < 25) {
+    category = "Normal range";
+    badgeClass = "care-plan-priority-low";
+  } else if (value < 30) {
+    category = "Overweight range";
+    badgeClass = "care-plan-priority-moderate";
+  }
+
+  return { value, category, badgeClass };
+
+}
+
+
 function PersonalizedCarePlanner({ goHome }) {
 
   // =====================================================
@@ -52,6 +98,8 @@ const [isGeneratingCarePlan, setIsGeneratingCarePlan] =
     weight: "",
 
     financialLevel: "",
+
+    dietaryPreference: "",
 
     occupation: "",
     workType: "",
@@ -997,7 +1045,7 @@ const generateCarePlan = async () => {
 
 
         {/* =============================================
-            WORK & LIFESTYLE
+            DIETARY PREFERENCE
         ============================================= */}
 
         <div className="form-section">
@@ -1006,6 +1054,154 @@ const generateCarePlan = async () => {
 
             <span className="section-number">
               03
+            </span>
+
+            <div>
+
+              <h3>
+                Dietary Preference
+              </h3>
+
+              <p>
+                This helps us suggest realistic meal and
+                nutrition options that actually fit what
+                you eat.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div className="financial-options">
+
+
+            <label className="selection-card">
+
+              <input
+                type="radio"
+                name="dietaryPreference"
+                value="vegetarian"
+                checked={
+                  formData.dietaryPreference ===
+                  "vegetarian"
+                }
+                onChange={handleChange}
+              />
+
+              <div>
+
+                <strong>
+                  Vegetarian
+                </strong>
+
+                <span>
+                  No meat, fish, or eggs
+                </span>
+
+              </div>
+
+            </label>
+
+
+            <label className="selection-card">
+
+              <input
+                type="radio"
+                name="dietaryPreference"
+                value="eggetarian"
+                checked={
+                  formData.dietaryPreference ===
+                  "eggetarian"
+                }
+                onChange={handleChange}
+              />
+
+              <div>
+
+                <strong>
+                  Eggetarian
+                </strong>
+
+                <span>
+                  Vegetarian, but eats eggs
+                </span>
+
+              </div>
+
+            </label>
+
+
+            <label className="selection-card">
+
+              <input
+                type="radio"
+                name="dietaryPreference"
+                value="non-vegetarian"
+                checked={
+                  formData.dietaryPreference ===
+                  "non-vegetarian"
+                }
+                onChange={handleChange}
+              />
+
+              <div>
+
+                <strong>
+                  Non-Vegetarian
+                </strong>
+
+                <span>
+                  Eats meat, fish, and/or eggs
+                </span>
+
+              </div>
+
+            </label>
+
+
+            <label className="selection-card">
+
+              <input
+                type="radio"
+                name="dietaryPreference"
+                value="vegan"
+                checked={
+                  formData.dietaryPreference ===
+                  "vegan"
+                }
+                onChange={handleChange}
+              />
+
+              <div>
+
+                <strong>
+                  Vegan
+                </strong>
+
+                <span>
+                  No animal products at all
+                </span>
+
+              </div>
+
+            </label>
+
+          </div>
+
+        </div>
+
+
+        {/* =============================================
+            WORK & LIFESTYLE
+        ============================================= */}
+
+        <div className="form-section">
+
+          <div className="form-section-title">
+
+            <span className="section-number">
+              04
             </span>
 
             <div>
@@ -2319,6 +2515,97 @@ const renderStepFour = () => {
             </strong>
 
           </div>
+
+
+          {/* HEIGHT & WEIGHT */}
+
+          {(formData.height || formData.weight) && (
+
+            <div className="care-plan-profile-item">
+
+              <span>
+                Height / Weight
+              </span>
+
+              <strong>
+                {formData.height
+                  ? `${formData.height} cm`
+                  : "Not provided"
+                }
+                {" · "}
+                {formData.weight
+                  ? `${formData.weight} kg`
+                  : "Not provided"
+                }
+              </strong>
+
+            </div>
+
+          )}
+
+
+          {/* BMI */}
+
+          {(() => {
+
+            const bmi = calculateBMI(
+              formData.height,
+              formData.weight
+            );
+
+            if (!bmi) {
+              return null;
+            }
+
+            return (
+
+              <div className="care-plan-profile-item">
+
+                <span>
+                  Body Mass Index (BMI)
+                </span>
+
+                <strong className="care-plan-bmi-value">
+
+                  {bmi.value}
+
+                  <span
+                    className={`care-plan-priority-badge ${bmi.badgeClass}`}
+                  >
+                    {bmi.category}
+                  </span>
+
+                </strong>
+
+              </div>
+
+            );
+
+          })()}
+
+
+          {/* DIETARY PREFERENCE */}
+
+          {formData.dietaryPreference && (
+
+            <div className="care-plan-profile-item">
+
+              <span>
+                Dietary Preference
+              </span>
+
+              <strong>
+
+                {formData.dietaryPreference === "vegetarian" && "Vegetarian"}
+                {formData.dietaryPreference === "eggetarian" && "Eggetarian"}
+                {formData.dietaryPreference === "non-vegetarian" && "Non-Vegetarian"}
+                {formData.dietaryPreference === "vegan" && "Vegan"}
+
+              </strong>
+
+            </div>
+
+          )}
 
 
           {/* CONDITIONS */}

@@ -6,6 +6,8 @@ import pdf from "pdf-parse";
 import fs from "fs";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { createCanvas } from "@napi-rs/canvas";
 
 import { GoogleGenAI } from "@google/genai";
 
@@ -409,46 +411,7 @@ Return the response strictly in the requested JSON format.
 // REPORT ANALYSIS
 // =====================================================
 
-async function analyzeMedicalReport(file) {
-  if (!ai) {
-    throw new Error("Gemini is unavailable.");
-  }
-
-  let reportContent = "";
-
-  // ===================================================
-  // PDF
-  // ===================================================
-
-  if (file.mimetype === "application/pdf") {
-    const pdfData = await pdf(file.buffer);
-
-    reportContent = pdfData.text;
-  }
-
-  // ===================================================
-  // IMAGE
-  // ===================================================
-
-  else {
-    const imageBase64 =
-      file.buffer.toString("base64");
-
-    const response =
-      await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite",
-
-        contents: [
-          {
-            inlineData: {
-              mimeType: file.mimetype,
-              data: imageBase64,
-            },
-          },
-
-          `
-Analyze this medical report image.
-
+const REPORT_JSON_INSTRUCTIONS = `
 Return ONLY valid JSON.
 
 {
@@ -478,65 +441,56 @@ Rules:
 - Explain medical terms simply.
 - Mention whether values are normal, low, or high.
 - Recommend consulting a doctor when necessary.
-`,
-        ],
-      });
+`;
 
-    const text = response.text
-      ?.replace(/^```json/i, "")
-      .replace(/^```/i, "")
-      .replace(/```$/i, "")
-      .trim();
+// Minimum number of extracted characters before we trust pdf-parse's
+// text layer. Scanned/"printed to PDF" images produce 0 (or near-0)
+// characters even though the mimetype says application/pdf.
+const MIN_PDF_TEXT_LENGTH = 40;
 
-    return JSON.parse(text);
+// ===================================================
+// Render every page of a PDF buffer to base64 PNG images.
+// Used for scanned/image-only PDFs that have no text layer.
+// ===================================================
+
+async function renderPdfToImages(buffer, maxPages = 5) {
+  const uint8Data = new Uint8Array(buffer);
+  const doc = await getDocument({ data: uint8Data }).promise;
+  const pageCount = Math.min(doc.numPages, maxPages);
+
+  for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+    const page = await doc.getPage(pageNum);
+    const viewport = page.getViewport({ scale: 2 });
+
+    const canvas = createCanvas(viewport.width, viewport.height);
+    const context = canvas.getContext("2d");
+
+    await page.render({ canvasContext: context, viewport }).promise;
+
+    const pngBuffer = await canvas.encode("png");
+    images.push(pngBuffer.toString("base64"));
   }
 
-  // ===================================================
-  // PDF ANALYSIS
-  // ===================================================
-
-  const response =
-    await ai.models.generateContent({
-      model: "gemini-3.1-flash-lite",
-
-      contents: `
-Analyze this medical report.
-
-Medical report:
-
-${reportContent}
-
-Return ONLY valid JSON.
-
-{
-  "summary":"Brief summary",
-
-  "important_values":[
-    {
-      "name":"Value",
-      "result":"Result",
-      "status":"Normal"
-    }
-  ],
-
-  "explanation":"Explain the report in simple language.",
-
-  "recommendations":[
-    "Recommendation 1",
-    "Recommendation 2",
-    "Recommendation 3"
-  ]
+  return images;
 }
 
-Rules:
+// ===================================================
+// Send one or more images (as base64 PNG/JPEG) to Gemini
+// and parse the structured JSON response.
+// ===================================================
 
-- Never diagnose.
-- Never prescribe medication.
-- Explain medical terms simply.
-- Mention whether values are normal, low, or high.
-- Recommend consulting a doctor when necessary.
-`,
-    });
+async function analyzeReportImages(imagesBase64, mimeType = "image/png") {
+  const response = await ai.models.generateContent({
+    model: "gemini-3.1-flash-lite",
+
+    contents: [
+      ...imagesBase64.map((data) => ({
+        inlineData: { mimeType, data },
+      })),
+
+      `Analyze this medical report image.\n${REPORT_JSON_INSTRUCTIONS}`,
+    ],
+  });
 
   const text = response.text
     ?.replace(/^```json/i, "")
@@ -545,6 +499,67 @@ Rules:
     .trim();
 
   return JSON.parse(text);
+}
+
+async function analyzeMedicalReport(file) {
+  if (!ai) {
+    throw new Error("Gemini is unavailable.");
+  }
+
+  // ===================================================
+  // PDF
+  // ===================================================
+
+  if (file.mimetype === "application/pdf") {
+    const pdfData = await pdf(file.buffer);
+    const reportContent = (pdfData.text || "").trim();
+
+    // Case 1: PDF has a real text layer (e.g. digitally generated
+    // lab report) — analyze it as text like before.
+    if (reportContent.length >= MIN_PDF_TEXT_LENGTH) {
+      const response = await ai.models.generateContent({
+        model: "gemini-3.1-flash-lite",
+
+        contents: `
+Analyze this medical report.
+
+Medical report:
+
+${reportContent}
+${REPORT_JSON_INSTRUCTIONS}`,
+      });
+
+      const text = response.text
+        ?.replace(/^```json/i, "")
+        .replace(/^```/i, "")
+        .replace(/```$/i, "")
+        .trim();
+
+      return JSON.parse(text);
+    }
+
+    // Case 2: No usable text layer — this is a scanned image
+    // (or a photo) saved/exported as a PDF, like "R8.jpg.pdf".
+    // Render the page(s) to images and reuse the image pipeline.
+    console.log(
+      `No text layer found in "${file.originalname}" — rendering as image instead.`
+    );
+
+    const images = await renderPdfToImages(file.buffer);
+
+    if (images.length === 0) {
+      throw new Error("Could not render any pages from this PDF.");
+    }
+
+    return analyzeReportImages(images, "image/png");
+  }
+
+  // ===================================================
+  // IMAGE
+  // ===================================================
+
+  const imageBase64 = file.buffer.toString("base64");
+  return analyzeReportImages([imageBase64], file.mimetype);
 }
 // =====================================================
 // MEDICAL REPORT ANALYZER API
@@ -749,6 +764,7 @@ console.log("Received data:", req.body);
       height,
       weight,
       financialLevel,
+      dietaryPreference,
       occupation,
       workType,
       workload,
@@ -883,6 +899,10 @@ Financial level: ${
       financialLevel || "Not provided"
     }
 
+Dietary preference: ${
+      dietaryPreference || "Not provided"
+    }
+
 Occupation: ${
       occupation || "Not provided"
     }
@@ -979,7 +999,7 @@ SAFETY RULES
 6. For "yoga", exclude or clearly caveat poses contraindicated by reported conditions (cardiac issues, uncontrolled hypertension, pregnancy, recent surgery, acute spinal issues).
 7. If genuinely concerning/emergency-type patterns are present, say so clearly in "seekEarlierCareIf".
 8. Respect the user's financial level — prefer practical, affordable suggestions.
-9. Adapt all meal suggestions to realistic Indian food patterns (dal, roti, sabzi, idli, upma, curd, seasonal vegetables) unless the profile suggests otherwise.
+9. Adapt all meal suggestions to realistic Indian food patterns (dal, roti, sabzi, idli, upma, curd, seasonal vegetables) unless the profile suggests otherwise. Strictly respect the user's stated "Dietary preference" — never suggest meat, fish, or eggs to someone who reported "vegetarian" or "vegan", never suggest dairy or other animal products to someone who reported "vegan", and if dietary preference is "Not provided", default to vegetarian-friendly options with any non-vegetarian items clearly optional/substitutable.
 10. Do not invent information the user did not provide.
 11. Do not leave "healthAssessment", "primaryConcerns", "priorities", "dailyRoutine", "physicalActivity", "sleepAndRecovery", and "stressManagement" empty — these must always be filled using whatever information is available, even if conditions/symptoms are minimal.
 12. NEVER state or imply that something the user did (a habit, food, activity) CAUSED a health outcome, even if the user themselves noticed a correlation. If the user reports noticing that a symptom seemed to improve or worsen alongside a habit, reflect that back as their own observation only — e.g. "You noticed your cycles were more predictable during periods of regular activity" — and immediately note that this is a personal observation, not an established cause, and does not replace medical evaluation of the underlying pattern. Do NOT tell the user to "keep doing X because it appears to regulate/fix Y."
@@ -1088,7 +1108,7 @@ SECTION RULES
 - "yoga": include 4-6 poses appropriate after safety filtering, or fewer gentle/breathing-only entries if the profile suggests caution is warranted. Always fill in "duration" and "frequency" for each pose — never leave them blank.
 - "physicalActivity": "currentRecommendation" should reflect what's appropriate right now; "beginnerPlan" is concrete first-1-2-weeks steps; "progression" is how to build up after that. Do not skip "progression" just because the plan is simple — even a modest progression (e.g. "increase daily walking by 5 minutes every week until reaching 30 minutes") is more useful than a flat instruction repeated forever.
 - If height, weight, waist circumference, dietary preference, or budget were not provided and are relevant to giving a precise calorie/weight target, say so explicitly in "physicalActivity" or "nutrition" guidance (e.g. "A precise calorie target would require your height, weight, and dietary preferences — here is general guidance in the meantime") rather than inventing a specific number.
-- Every meal-plan array ("breakfastOptions", "lunchOptions", "dinnerOptions", "snackOptions") must contain at least 3 distinct, affordable, realistic Indian options — not just one. Vary them (e.g. don't repeat "oats" as the only breakfast) and keep them appropriate to the user's stated financial level.
+- Every meal-plan array ("breakfastOptions", "lunchOptions", "dinnerOptions", "snackOptions") must contain at least 3 distinct, affordable, realistic Indian options — not just one. Vary them (e.g. don't repeat "oats" as the only breakfast) and keep them appropriate to the user's stated financial level AND dietary preference (see Safety Rule 9).
 - Do not repeat the content of "healthAssessment" anywhere else in the report (not in "primaryConcerns", not anywhere). Each section should add new information, not restate the same paragraph in different words.
 
 Return JSON only. No markdown. No code fences. No text before or after the JSON object.

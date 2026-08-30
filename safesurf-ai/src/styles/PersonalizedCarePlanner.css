@@ -973,6 +973,13 @@ body.dark-theme .selected-condition {
   grid-column: 1 / -1;
 }
 
+.care-plan-bmi-value {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 
 /* =====================================================
    REPORT SUMMARY
