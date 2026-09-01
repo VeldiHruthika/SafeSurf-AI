@@ -3980,14 +3980,6 @@ const renderStepFour = () => {
 
       <section className="care-planner-header">
 
-        <button
-          className="care-back-btn"
-          onClick={goHome}
-        >
-          ← Back to Home
-        </button>
-
-
         <div className="care-planner-title">
 
           <span className="care-planner-badge">

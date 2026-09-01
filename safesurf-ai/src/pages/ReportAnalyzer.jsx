@@ -503,6 +503,82 @@ const analyzeAnotherReport = () => {
               </div>
 
 
+              {/* =================================================
+                  HOW EACH FILE WAS PROCESSED
+              ================================================= */}
+
+              {Array.isArray(analysis.reports) &&
+                analysis.reports.length > 0 && (
+
+                <div className="report-files-processed">
+
+                  {analysis.reports.map(
+                    (report, index) => {
+
+                      const statusMap = {
+
+                        "pdf-text": {
+                          icon: "📄",
+                          label: "Text extracted from PDF",
+                          className: "report-file-status-text",
+                        },
+
+                        "image": {
+                          icon: "🖼",
+                          label: "Analyzed as image",
+                          className: "report-file-status-image",
+                        },
+
+                        "pdf-scanned-image": {
+                          icon: "🖼",
+                          label: "No text layer found — processed as a scanned image",
+                          className: "report-file-status-scanned",
+                        },
+
+                        "error": {
+                          icon: "⚠",
+                          label: "Could not be analyzed",
+                          className: "report-file-status-error",
+                        },
+
+                      };
+
+                      const status =
+                        statusMap[report.sourceType] || {
+                          icon: "📄",
+                          label: "Processed",
+                          className: "report-file-status-text",
+                        };
+
+                      return (
+
+                        <div
+                          className="report-file-status-item"
+                          key={`${report.fileName}-${index}`}
+                        >
+
+                          <span className="report-file-status-name">
+                            {report.fileName}
+                          </span>
+
+                          <span
+                            className={`report-file-status-badge ${status.className}`}
+                          >
+                            {status.icon} {status.label}
+                          </span>
+
+                        </div>
+
+                      );
+
+                    }
+                  )}
+
+                </div>
+
+              )}
+
+
               {/* SUMMARY */}
 
               {analysis.summary && (

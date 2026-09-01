@@ -36,13 +36,13 @@
 .pharmacy-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 
-  padding: 10px 20px;
+  padding: 9px 20px;
   margin-bottom: 24px;
 
-  background: var(--color-primary-lighter);
-  border: 1.5px solid var(--color-primary);
+  background: var(--color-primary-light);
+  border: 1.5px dashed var(--color-primary);
   color: var(--color-primary-dark);
 
   font-size: 0.78rem;
@@ -51,8 +51,10 @@
   text-transform: uppercase;
 
   border-radius: var(--radius-full);
+}
 
-  box-shadow: 0 8px 20px -10px var(--color-primary);
+.pharmacy-badge svg {
+  flex-shrink: 0;
 }
 
 .pharmacy-hero h1 {
@@ -94,119 +96,6 @@
   padding-bottom: 90px;
 }
 
-/* --- personalized symptom match banner --- */
-
-.symptom-match-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-
-  padding: 28px 32px;
-
-  background: linear-gradient(
-    125deg,
-    var(--color-accent) 0%,
-    var(--color-accent-dark) 100%
-  );
-  color: #fff;
-
-  border-radius: var(--radius-lg);
-
-  box-shadow:
-    var(--shadow-md),
-    0 20px 40px -20px var(--color-accent-dark);
-
-  margin-bottom: 30px;
-}
-
-.symptom-match-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.symptom-match-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 46px;
-  height: 46px;
-
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.25);
-
-  font-size: 1.2rem;
-
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15);
-}
-
-.symptom-match-label {
-  display: block;
-
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-
-  color: rgba(255, 255, 255, 0.85);
-
-  margin-bottom: 4px;
-}
-
-.symptom-match-left h3 {
-  color: #fff;
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.matched-symptoms {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.matched-symptoms span {
-  padding: 6px 14px;
-
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-full);
-
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.view-all-products-btn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 13px 24px;
-
-  background: #fff;
-  color: var(--color-accent-dark);
-
-  font-weight: 800;
-  font-size: 0.88rem;
-
-  border-radius: var(--radius-full);
-
-  box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.35);
-
-  transition:
-    transform var(--transition),
-    box-shadow var(--transition);
-}
-
-.view-all-products-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
-}
-
 /* --- search --- */
 
 .pharmacy-search {
@@ -214,26 +103,29 @@
   align-items: center;
   gap: 10px;
 
-  padding: 15px 20px;
+  padding: 14px 20px;
   margin-bottom: 18px;
 
   background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-full);
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-tag);
 
-  transition:
-    border-color var(--transition),
-    box-shadow var(--transition);
+  box-shadow: var(--shadow-sm);
+
+  transition: box-shadow var(--transition);
 }
 
 .pharmacy-search:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px var(--color-primary-lighter);
+  box-shadow: var(--shadow-focus);
 }
 
-.pharmacy-search span {
+.pharmacy-search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
   color: var(--color-muted);
-  font-size: 1.05rem;
 }
 
 .pharmacy-search input {
@@ -251,6 +143,32 @@
   color: var(--color-muted);
 }
 
+.clear-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 26px;
+  height: 26px;
+
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-strong);
+
+  color: var(--color-muted);
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.clear-search:hover {
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+}
+
 /* --- category filter --- */
 
 .pharmacy-categories {
@@ -260,47 +178,114 @@
   scrollbar-width: none;
 
   padding-bottom: 4px;
-  margin-bottom: 34px;
+  margin-bottom: 18px;
 }
 
 .pharmacy-categories::-webkit-scrollbar {
   display: none;
 }
 
+.pharmacy-categories.pharmacy-sort {
+  margin-bottom: 34px;
+}
+
 .pharmacy-category {
   flex-shrink: 0;
 
-  padding: 11px 22px;
+  padding: 10px 20px;
 
   background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-tag);
 
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 700;
   white-space: nowrap;
 
   color: var(--color-body);
 
-  transition: all var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .pharmacy-category:hover {
   border-color: var(--color-primary);
   color: var(--color-primary-dark);
-  transform: translateY(-2px);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .pharmacy-category.active {
-  background: linear-gradient(
-    120deg,
-    var(--color-primary) 0%,
-    var(--color-primary-dark) 100%
-  );
-  border-color: var(--color-primary-dark);
+  background: var(--color-primary);
+  border-color: var(--color-primary-darker);
   color: #fff;
 
-  box-shadow: 0 6px 16px -4px var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.pharmacy-category.active:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* --- stamp legend ---
+   Explains the MED / SUP / DEV / OTC badges using the same
+   solid colors as the stamps themselves, so the two visually
+   connect at a glance. */
+
+.stamp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+
+  padding: 12px 16px;
+  margin-bottom: 22px;
+
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.stamp-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-body);
+  white-space: nowrap;
+}
+
+.stamp-legend-dot {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ink);
+}
+
+.stamp-legend-dot--medicine {
+  background: var(--color-danger);
+  border-color: var(--color-danger-dark);
+}
+
+.stamp-legend-dot--supplement {
+  background: var(--color-primary);
+  border-color: var(--color-primary-darker);
+}
+
+.stamp-legend-dot--health-device {
+  background: var(--color-ink);
+}
+
+.stamp-legend-dot--general-health-product {
+  background: var(--color-accent);
+  border-color: var(--color-accent-dark);
 }
 
 /* --- heading row --- */
@@ -335,7 +320,8 @@
   padding: 6px 14px;
 
   background: var(--color-primary-lighter);
-  border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary-light);
+  border-radius: var(--radius-tag);
 
   font-size: 0.8rem;
   font-weight: 700;
@@ -349,18 +335,23 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 24px;
+  counter-reset: product;
 }
 
 .product-card {
+  counter-increment: product;
+  position: relative;
+
   display: flex;
   flex-direction: column;
 
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-top: 4px solid var(--color-primary);
+  border: 2px solid var(--color-ink);
   border-radius: var(--radius-lg);
 
-  overflow: hidden;
+  overflow: visible;
+
+  box-shadow: var(--shadow-sm);
 
   transition:
     transform var(--transition),
@@ -369,31 +360,135 @@
 }
 
 .product-card:hover {
-  transform: translateY(-6px);
+  transform: translate(-5px, -5px) rotate(-0.6deg);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+}
 
-  box-shadow:
-    var(--shadow-md),
-    0 20px 34px -18px var(--color-primary);
+/* --- stamped type badge ---
+   A real ink-seal: solid saturated fill (not the washed-out
+   *-light tokens, which nearly vanish against a dark-mode card),
+   a dashed inner ring for the "rubber stamp" texture, and a
+   heavier tilt that straightens up on hover. */
 
-  border-color: var(--color-primary-light);
+.product-stamp {
+  position: absolute;
+  top: -16px;
+  right: 16px;
+  z-index: 3;
+
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 2px solid var(--color-ink);
+
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #fff;
+
+  box-shadow: var(--shadow-md);
+  transform: rotate(-11deg);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.product-stamp::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+.product-card:hover .product-stamp {
+  transform: rotate(0deg) scale(1.08);
+  box-shadow: var(--shadow-lg);
+}
+
+.product-stamp--medicine {
+  background: var(--color-danger);
+  border-color: var(--color-danger-dark);
+}
+
+.product-stamp--supplement {
+  background: var(--color-primary);
+  border-color: var(--color-primary-darker);
+}
+
+.product-stamp--health-device {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+.product-stamp--general-health-product {
+  background: var(--color-accent);
+  border-color: var(--color-accent-dark);
 }
 
 .product-image {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 
   height: 140px;
+  flex-shrink: 0;
 
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-light),
-    var(--color-bg-alt)
-  );
+  background: var(--color-bg-alt);
+  background-image: var(--dot-grid);
+  background-size: 15px 15px;
+
+  border-bottom: 2px solid var(--color-ink);
+  border-radius: 17px 17px 0 0;
+
+  overflow: hidden;
+}
+
+/* faint large index numeral, reusing the numbered-ticket motif
+   already used for services/FAQ elsewhere on the site */
+.product-image::before {
+  content: counter(product, decimal-leading-zero);
+
+  position: absolute;
+  left: 10px;
+  bottom: -14px;
+  z-index: 0;
+
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 3.4rem;
+  line-height: 1;
+
+  color: var(--color-surface);
+  -webkit-text-stroke: 1px var(--color-border-strong);
+  opacity: 0.55;
 }
 
 .product-image-icon {
-  font-size: 2.8rem;
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 58px;
+  height: 58px;
+
+  border: 1.5px solid var(--color-primary-dark);
+  border-radius: var(--radius-tag);
+  background: var(--color-surface);
+
+  color: var(--color-primary-dark);
+
+  box-shadow: var(--shadow-sm);
 }
 
 .product-info {
@@ -412,9 +507,10 @@
   margin-bottom: 12px;
 
   background: var(--color-accent-light);
-  border-radius: var(--radius-full);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-tag);
 
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -451,9 +547,10 @@
   padding: 4px 11px;
 
   background: var(--color-bg-alt);
-  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-tag);
 
-  font-size: 0.72rem;
+  font-size: 0.71rem;
   font-weight: 600;
 
   color: var(--color-body);
@@ -461,55 +558,76 @@
 
 .product-footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
   gap: 12px;
 
   margin-top: auto;
   padding-top: 16px;
 
-  border-top: 1px dashed var(--color-border);
+  border-top: 1.5px dashed var(--color-border);
 }
 
-.product-footer small {
+.product-footer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.product-footer-meta small {
   display: block;
 
-  font-size: 0.7rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
   color: var(--color-muted);
 }
 
-.product-footer strong {
-  font-size: 0.85rem;
+.product-footer-meta strong {
+  display: block;
+
+  font-size: 0.9rem;
+  font-weight: 700;
   color: var(--color-ink);
 }
 
 .product-footer a {
-  flex-shrink: 0;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
 
-  padding: 8px 14px;
+  padding: 10px 16px;
 
-  background: linear-gradient(
-    115deg,
-    var(--color-primary) 0%,
-    var(--color-primary-dark) 100%
-  );
+  background: var(--color-primary);
   color: #ffffff;
 
-  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-primary-darker);
+  border-radius: var(--radius-tag);
 
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
 
-  box-shadow: 0 6px 14px -6px var(--color-primary);
+  box-shadow: var(--shadow-sm);
 
   transition:
     transform var(--transition-fast),
-    filter var(--transition-fast);
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .product-footer a:hover {
-  filter: brightness(1.08);
-  transform: translateY(-2px);
+  background: var(--color-primary-dark);
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-md);
+}
+
+.product-footer a:active {
+  transform: translate(0, 0);
+  box-shadow: var(--shadow-sm);
 }
 
 /* --- empty state --- */
@@ -526,19 +644,19 @@
 }
 
 .no-products-icon {
-  width: 60px;
-  height: 60px;
+  width: 58px;
+  height: 58px;
   margin: 0 auto 16px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-tag);
+  border: 1.5px solid var(--color-primary);
   background: var(--color-primary-lighter);
 
   color: var(--color-primary-dark);
-  font-size: 1.5rem;
 }
 
 .no-products h3 {
@@ -552,6 +670,27 @@
 .no-products p {
   font-size: 0.88rem;
   color: var(--color-muted);
+  margin-bottom: 16px;
+}
+
+.suggested-searches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.suggested-searches span {
+  padding: 6px 14px;
+
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-tag);
+
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  color: var(--color-body);
 }
 
 /* --- disclaimer --- */
@@ -574,7 +713,9 @@
 }
 
 .pharmacy-disclaimer strong {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
 
   font-size: 0.92rem;
@@ -588,16 +729,6 @@
 ========================================================= */
 
 @media (max-width: 768px) {
-  .symptom-match-banner {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: left;
-  }
-
-  .view-all-products-btn {
-    justify-content: center;
-  }
-
   .pharmacy-heading {
     flex-direction: column;
     align-items: flex-start;

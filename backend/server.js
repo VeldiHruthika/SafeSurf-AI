@@ -457,6 +457,7 @@ async function renderPdfToImages(buffer, maxPages = 5) {
   const uint8Data = new Uint8Array(buffer);
   const doc = await getDocument({ data: uint8Data }).promise;
   const pageCount = Math.min(doc.numPages, maxPages);
+  const images = [];
 
   for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
     const page = await doc.getPage(pageNum);
@@ -535,7 +536,10 @@ ${REPORT_JSON_INSTRUCTIONS}`,
         .replace(/```$/i, "")
         .trim();
 
-      return JSON.parse(text);
+      return {
+        analysis: JSON.parse(text),
+        sourceType: "pdf-text",
+      };
     }
 
     // Case 2: No usable text layer — this is a scanned image
@@ -551,7 +555,10 @@ ${REPORT_JSON_INSTRUCTIONS}`,
       throw new Error("Could not render any pages from this PDF.");
     }
 
-    return analyzeReportImages(images, "image/png");
+    return {
+      analysis: await analyzeReportImages(images, "image/png"),
+      sourceType: "pdf-scanned-image",
+    };
   }
 
   // ===================================================
@@ -559,7 +566,11 @@ ${REPORT_JSON_INSTRUCTIONS}`,
   // ===================================================
 
   const imageBase64 = file.buffer.toString("base64");
-  return analyzeReportImages([imageBase64], file.mimetype);
+
+  return {
+    analysis: await analyzeReportImages([imageBase64], file.mimetype),
+    sourceType: "image",
+  };
 }
 // =====================================================
 // MEDICAL REPORT ANALYZER API
@@ -611,8 +622,10 @@ app.post(
           );
 
 
-          const analysis =
-            await analyzeMedicalReport(file);
+          const {
+            analysis,
+            sourceType,
+          } = await analyzeMedicalReport(file);
 
 
           analyses.push({
@@ -622,6 +635,9 @@ app.post(
 
             analysis:
               analysis,
+
+            sourceType:
+              sourceType,
 
           });
 
@@ -652,6 +668,8 @@ app.post(
               recommendations: [],
 
             },
+
+            sourceType: "error",
 
           });
 
