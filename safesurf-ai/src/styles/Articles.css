@@ -1,392 +1,758 @@
-/* =========================================================
-   AI HEALTH ASSISTANT
-   Visual concept: a consultation pad / triage note. The card
-   reads like a tear-off pad sheet, each chat bubble is stamped
-   with a sender seal, and the hero strip echoes a heartbeat
-   trace instead of decorative motion.
-   Relies on the design tokens (--color-*, --radius-*,
-   --shadow-*, --font-*) declared in :root inside index.css.
-========================================================= */
+/* =====================================================
+   ARTICLES PAGE — "CHART TAB" IDENTITY
 
-.ai-page {
-  position: relative;
-  padding: 120px 20px 80px;
+   Built on the site's real design tokens (--color-*, --font-*,
+   --radius-*, --shadow-*, --dot-grid, --pulse-line) declared in
+   index.css. Signature idea: this is a library of health
+   conditions, so every card, filter and detail page is treated
+   like a color-tabbed medical chart — the paper-filing system
+   real clinics use to spot a record's type at a glance, without
+   reading a word of it. Each category gets its own tab color,
+   derived from the existing palette with color-mix() rather than
+   new hex values, so the page stays inside the site's system
+   while still reading as clearly organized and alive.
+===================================================== */
+
+.articles-page {
   min-height: 100vh;
+  padding-bottom: 90px;
   background: var(--color-bg);
-  color: var(--color-body);
-  transition:
-    background-color var(--transition),
-    color var(--transition);
+  overflow-x: hidden;
+
+  /* One shared "tab color" custom property, redefined per
+     category below via [data-category]. Everything downstream
+     — badges, card flags, buttons, the detail rail — just reads
+     var(--tab). */
+  --tab: var(--color-primary);
+  --tab-dark: var(--color-primary-dark);
 }
 
-/* --- hero --- */
+[data-category="chronic"] {
+  --tab: var(--color-primary);
+  --tab-dark: var(--color-primary-dark);
+}
 
-.ai-hero {
+[data-category="infectious"] {
+  --tab: var(--color-danger);
+  --tab-dark: var(--color-danger-dark);
+}
+
+[data-category="common"] {
+  --tab: var(--color-accent);
+  --tab-dark: var(--color-accent-dark);
+}
+
+[data-category="serious"] {
+  --tab: color-mix(in srgb, var(--color-danger) 65%, var(--color-ink) 35%);
+  --tab-dark: var(--color-danger-dark);
+}
+
+[data-category="mental-health"] {
+  --tab: color-mix(in srgb, var(--color-primary) 55%, var(--color-accent) 45%);
+  --tab-dark: var(--color-primary-darker);
+}
+
+[data-category="hormonal"] {
+  --tab: color-mix(in srgb, var(--color-accent) 65%, var(--color-primary) 35%);
+  --tab-dark: var(--color-accent-dark);
+}
+
+[data-category="menstrual"] {
+  --tab: color-mix(in srgb, var(--color-danger) 50%, var(--color-primary) 50%);
+  --tab-dark: var(--color-danger-dark);
+}
+
+[data-category="reproductive"] {
+  --tab: color-mix(in srgb, var(--color-primary) 35%, var(--color-accent) 65%);
+  --tab-dark: var(--color-primary-darker);
+}
+
+[data-category="gynecological"] {
+  --tab: color-mix(in srgb, var(--color-accent) 35%, var(--color-danger) 65%);
+  --tab-dark: var(--color-danger-dark);
+}
+
+[data-category="menopause"] {
+  --tab: color-mix(in srgb, var(--color-primary) 78%, var(--color-ink) 22%);
+  --tab-dark: var(--color-primary-darker);
+}
+
+[data-category="rare"] {
+  --tab: var(--color-ink);
+  --tab-dark: var(--color-ink);
+}
+
+/* --color-ink renders as a light, near-white tone in this theme
+   (it's the site's main foreground/border color), so anywhere
+   "rare" uses --tab as a solid fill, white text would vanish —
+   force dark text on those specific fills instead. */
+[data-category="rare"] .article-category,
+.article-filters button.active[data-category="rare"],
+.selected-article[data-category="rare"] .article-button {
+  color: var(--color-bg);
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.articles-header {
   position: relative;
+  width: 100vw;
+  margin: 0 calc(50% - 50vw) 46px;
+  padding: 90px 20px 46px;
   text-align: center;
-  margin-bottom: 40px;
-}
 
-.ai-badge {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 20px 9px 30px;
-  border-radius: var(--radius-full);
-  border: 1.5px dashed var(--color-primary);
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  margin-bottom: 22px;
-}
-
-.ai-badge::before {
-  content: "";
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  margin-top: -3.5px;
-  border-radius: var(--radius-full);
-  background: var(--color-danger);
-  box-shadow: 0 0 0 0 var(--color-danger);
-  animation: heartbeat-dot 1.8s ease-in-out infinite;
-}
-
-@keyframes heartbeat-dot {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); transform: scale(1); }
-  35% { box-shadow: 0 0 0 5px rgba(0, 0, 0, 0); transform: scale(1.35); }
-}
-
-.ai-hero h1 {
-  font-size: clamp(2.2rem, 4.5vw, 3.25rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.12;
-  margin-bottom: 16px;
-  color: var(--color-ink);
-}
-
-.ai-hero span {
-  display: block;
-  color: var(--color-primary);
-}
-
-.ai-hero p {
-  max-width: 52ch;
-  margin: 0 auto 26px;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--color-body);
-}
-
-/* heartbeat trace beneath the hero copy, replacing the old
-   underline-only accent so the "vitals" motif is set up before
-   the card appears */
-.ai-hero::after {
-  content: "";
-  display: block;
-  width: min(320px, 70%);
-  height: 22px;
-  margin: 0 auto;
-  background-image: var(--pulse-line);
-  background-repeat: repeat-x;
-  background-position: center;
-  background-size: 130px 22px;
-  opacity: 0.4;
-}
-
-/* --- consultation pad card --- */
-
-.ai-card {
-  position: relative;
-  max-width: 900px;
-  margin: auto;
-  padding: 40px 34px 34px;
-  border-radius: var(--radius-xl);
-  background: var(--color-surface);
-  border: 2px solid var(--color-ink);
-  box-shadow: var(--shadow-lg);
-}
-
-/* torn-edge / perforation strip standing in for the old pulse
-   overlay, reading as a tear-off pad rather than a monitor */
-.ai-card::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: 28px;
-  right: 28px;
-  height: 2px;
-  background-image: radial-gradient(
-    circle,
-    var(--color-bg) 2.5px,
-    transparent 2.6px
-  );
-  background-repeat: repeat-x;
-  background-size: 16px 2px;
-  background-position: top;
-}
-
-.ai-card::after {
-  content: "CONSULT NOTE";
-  position: absolute;
-  top: -11px;
-  right: 32px;
-  padding: 3px 10px;
-  background: var(--color-ink);
-  color: var(--color-surface);
-  font-family: var(--font-display);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  border-radius: var(--radius-sm);
-}
-
-.ai-card > h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-ink);
-  margin-bottom: 4px;
-}
-
-/* --- suggested questions: pull-tabs, not pills --- */
-
-.question-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.question-buttons button {
-  position: relative;
-  padding: 11px 18px 11px 16px;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  border: 1.5px solid var(--color-border-strong);
-  border-left: 3px solid var(--color-primary);
-  background: var(--color-bg);
-  color: var(--color-body);
-  font-size: 0.86rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    border-color var(--transition-fast),
-    background var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.question-buttons button:hover {
-  border-color: var(--color-primary);
-  border-left-color: var(--color-primary-dark);
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
-}
-
-/* --- chat transcript --- */
-
-.chat-box {
-  height: 500px;
-  overflow-y: auto;
-  padding: 30px 30px 30px 66px;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  margin: 25px 0;
-  background: var(--color-bg);
+  background: var(--color-bg-alt);
   background-image: var(--dot-grid);
   background-size: 14px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
+  overflow: hidden;
 }
 
-.chat-message {
-  position: relative;
-  max-width: 78%;
-  padding: 16px 20px;
-  border-radius: var(--radius-md);
-  line-height: 1.7;
-  font-size: 16px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  box-shadow: var(--shadow-sm);
+/* content itself stays readable at a text-column width, centered
+   inside the now full-width header */
+.articles-header > * {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* sender seal: a stamped initial sitting in the chat-box gutter
-   rather than a floating avatar, so it reads as a signed note */
-.chat-message::before {
+.articles-header::after {
   content: "";
   position: absolute;
-  top: 6px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-ink);
-  display: flex;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  background-image: var(--pulse-line);
+  background-repeat: repeat-x;
+  background-size: 130px 26px;
+  opacity: 0.28;
+}
+
+.articles-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 0.62rem;
-  font-weight: 800;
-  color: #fff;
-}
+  gap: 6px;
 
-.chat-message.user {
-  margin-left: auto;
-  background: var(--color-primary);
-  color: #fff;
-  border: 1.5px solid var(--color-primary-darker);
-  border-radius: var(--radius-md) var(--radius-md) 4px var(--radius-md);
-}
+  padding: 8px 16px;
+  margin-bottom: 20px;
 
-.chat-message.user::before {
-  content: "YOU";
-  right: -60px;
-  background: var(--color-ink);
-  border-color: var(--color-ink);
-  font-size: 0.55rem;
-}
-
-.chat-message.ai {
-  margin-right: auto;
   background: var(--color-surface);
-  color: var(--color-body);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 4px;
-}
+  border: 1.5px dashed var(--color-primary);
+  color: var(--color-primary-dark);
 
-.chat-message.ai::before {
-  content: "AI";
-  left: -46px;
-  background: var(--color-primary);
-  border-color: var(--color-primary-darker);
-}
-
-@media (max-width: 640px) {
-  .chat-message::before {
-    display: none;
-  }
-}
-
-/* --- composer --- */
-
-.input-section {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.input-section input {
-  flex: 1;
-  padding: 17px 24px;
-  border-radius: var(--radius-full);
-  border: 1.5px solid var(--color-border);
-  outline: none;
-  background: var(--color-bg);
-  color: var(--color-ink);
-  transition: border-color var(--transition);
-}
-
-.input-section input::placeholder {
-  color: var(--color-muted);
-}
-
-.input-section input:focus {
-  border-color: var(--color-primary);
-}
-
-.input-section button {
-  padding: 14px 24px;
-  border: 1.5px solid var(--color-primary-darker);
-  border-radius: var(--radius-tag);
-  cursor: pointer;
-  background: var(--color-primary);
-  color: #fff;
+  font-size: 0.78rem;
   font-weight: 700;
-  box-shadow: var(--shadow-sm);
-  transition: background var(--transition), box-shadow var(--transition);
+  letter-spacing: 0.08em;
+
+  border-radius: var(--radius-full);
 }
 
-.input-section button:hover {
-  background: var(--color-primary-dark);
+.articles-header h1 {
+  margin-bottom: 14px;
+
+  font-size: clamp(2.1rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+
+  background: linear-gradient(
+    100deg,
+    var(--color-ink) 30%,
+    var(--color-primary) 78%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.articles-header p {
+  max-width: 560px;
+  margin: 0 auto 30px;
+
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
+
+  color: var(--color-body);
+}
+
+
+/* SEARCH */
+
+.articles-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  box-sizing: border-box;
+
+  padding: 13px 18px;
+
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.articles-search:focus-within {
+  transform: translate(-2px, -2px);
   box-shadow: var(--shadow-md);
 }
 
-.input-section button:last-child {
-  background: transparent;
-  color: var(--color-muted);
-  border: 1.5px solid var(--color-border-strong);
-  box-shadow: none;
-}
-
-.input-section button:last-child:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger-dark);
-  background: var(--color-danger-light);
-}
-
-/* --- disclaimer, styled after a pad's printed fine print --- */
-
-.ai-warning {
-  position: relative;
-  margin-top: 22px;
-  padding: 16px 20px 16px 46px;
-  border-radius: var(--radius-sm);
-  background: var(--color-accent-light);
-  color: var(--color-accent-dark);
-  border-top: 1.5px dashed var(--color-accent-dark);
-  font-size: 0.85rem;
-  line-height: 1.6;
-}
-
-.ai-warning::before {
-  content: "!";
-  position: absolute;
-  left: 16px;
-  top: 16px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-accent-dark);
+.articles-search-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+
+  color: var(--color-muted);
+}
+
+.articles-search input {
+  flex: 1;
+  min-width: 0;
+
+  border: none;
+  background: none;
+  padding: 0;
+
+  color: var(--color-ink);
+  font-size: 15px;
+  font-weight: 500;
+
+  outline: none;
+}
+
+.articles-search input::placeholder {
+  color: var(--color-muted);
+}
+
+.clear-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border-strong);
+
+  color: var(--color-muted);
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.clear-search:hover {
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+}
+
+
+/* =====================================================
+   FILTERS — styled as small colored chart tabs, each one
+   previewing the exact tab color its cards carry
+===================================================== */
+
+.article-filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  gap: 9px;
+  margin-top: 22px;
+}
+
+.article-filters button {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 9px 16px 9px 14px;
+
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-tag);
+
+  background: var(--color-surface);
+  color: var(--color-body);
+
+  font-size: 12.5px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* color dot preview — only present on category buttons, since
+   only they carry a data-category attribute */
+.article-filters button[data-category]::before {
+  content: "";
+  flex-shrink: 0;
+
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+
+  background: var(--tab);
+}
+
+.article-filters button:hover {
+  border-color: var(--tab);
+  color: var(--tab);
+  transform: translateY(-2px);
+}
+
+.article-filters button.active {
+  background: var(--tab);
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--tab) 65%, black 35%);
+}
+
+.article-filters button.active[data-category]::before {
+  background: #ffffff;
+}
+
+/* the "All" button has no tab color of its own, so it borrows
+   ink instead of leaving --tab unset */
+.article-filters button:not([data-category]).active {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+
+/* =====================================================
+   RESULTS COUNT
+===================================================== */
+
+.articles-grid-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.articles-results-count {
+  margin: 0 0 18px;
+
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+
+/* =====================================================
+   ARTICLE GRID
+===================================================== */
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px 24px;
+  counter-reset: article-index;
+}
+
+
+/* =====================================================
+   ARTICLE CARD — a color-tabbed chart page
+
+   The little flag at the top-left edge is the folder tab; the
+   faint number on the right is the record's place in the shelf
+   (a library accession number), set with a CSS counter so it
+   always matches display order without touching the component.
+===================================================== */
+
+.article-card {
+  counter-increment: article-index;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 28px 26px 26px;
+  margin-top: 10px;
+
+  background: var(--color-surface);
+  border: 2px solid var(--color-ink);
+  border-radius: 4px var(--radius-lg) var(--radius-lg) var(--radius-lg);
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+/* the folder tab */
+.article-card::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 22px;
+
+  width: 46px;
+  height: 14px;
+
+  background: var(--tab);
+  border: 2px solid var(--color-ink);
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+}
+
+/* the accession number */
+.article-card::after {
+  content: counter(article-index, decimal-leading-zero);
+  position: absolute;
+  top: 14px;
+  right: 18px;
+
   font-family: var(--font-display);
-  font-size: 0.7rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+
+  color: var(--color-muted);
+  opacity: 0.6;
+}
+
+.article-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--tab);
+}
+
+
+/* CATEGORY */
+
+.article-category {
+  display: inline-block;
+  align-self: flex-start;
+
+  padding: 5px 12px;
+  margin-bottom: 14px;
+
+  border: 1.5px solid color-mix(in srgb, var(--tab) 65%, black 35%);
+  border-radius: var(--radius-tag);
+
+  background: var(--tab);
+  color: #ffffff;
+
+  font-size: 10.5px;
   font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-/* --- responsive --- */
 
-@media (max-width: 640px) {
-  .ai-card {
-    padding: 30px 18px 24px;
-  }
+/* TITLE */
 
-  .chat-box {
-    height: 420px;
-    padding: 20px;
-  }
+.article-card h2 {
+  margin: 5px 22px 18px 0;
 
-  .chat-message {
-    max-width: 92%;
-  }
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 
-  .input-section {
-    flex-wrap: wrap;
-  }
-
-  .input-section input {
-    flex-basis: 100%;
-  }
+  color: var(--color-ink);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ai-badge::before {
-    animation: none;
+
+/* SECTION HEADINGS */
+
+.article-card h4,
+.selected-article h4 {
+  margin: 15px 0 5px;
+
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  color: var(--tab);
+}
+
+
+/* TEXT */
+
+.article-card p {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.65;
+
+  color: var(--color-body);
+}
+
+
+/* BUTTON */
+
+.article-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 20px;
+  padding-top: 20px;
+  border: none;
+  border-top: 1.5px dashed var(--color-border);
+
+  color: var(--tab);
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+  background: none;
+
+  transition:
+    gap var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.article-card .article-button {
+  gap: 6px;
+}
+
+.article-card .article-button:hover {
+  gap: 10px;
+  color: color-mix(in srgb, var(--tab) 70%, white 30%);
+}
+
+/* the "Read Full Article" link in the detail view keeps the
+   solid filled treatment, since it's the page's one real CTA */
+.selected-article .article-button {
+  margin-top: 26px;
+  padding: 12px 18px;
+
+  border: 2px solid var(--tab-dark);
+  border-radius: var(--radius-md);
+
+  background: var(--tab);
+  color: white;
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.selected-article .article-button:hover {
+  background: var(--tab-dark);
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-md);
+  gap: 6px;
+}
+
+
+/* NO RESULTS */
+
+.no-results {
+  grid-column: 1 / -1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 60px 20px;
+
+  text-align: center;
+
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.no-results-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 54px;
+  height: 54px;
+  margin-bottom: 16px;
+
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-tag);
+
+  background: var(--color-bg-alt);
+
+  font-size: 22px;
+}
+
+.no-results h3 {
+  margin-bottom: 6px;
+  color: var(--color-ink);
+}
+
+.no-results p {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+
+/* =====================================================
+   SELECTED ARTICLE DETAIL VIEW — an opened chart page, with
+   a colored spine on the left like a binder edge
+===================================================== */
+
+.selected-article {
+  position: relative;
+  max-width: 850px;
+  margin: 0 auto 60px;
+
+  padding: 44px 44px 44px 52px;
+
+  background: var(--color-surface);
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-xl);
+
+  box-shadow: var(--shadow-lg);
+
+  overflow: hidden;
+}
+
+.selected-article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 10px;
+
+  background: var(--tab);
+  border-right: 2px solid var(--color-ink);
+}
+
+.selected-article h2 {
+  margin: 15px 0 26px;
+
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+
+  color: var(--color-ink);
+}
+
+.selected-article p {
+  line-height: 1.75;
+
+  color: var(--color-body);
+}
+
+.close-article {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 0;
+  margin-bottom: 22px;
+
+  border: none;
+  background: transparent;
+
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.close-article:hover {
+  color: var(--tab);
+  transform: translateX(-3px);
+}
+
+
+/* =====================================================
+   MEDICAL INFORMATION NOTICE
+===================================================== */
+
+.medical-information-notice {
+  max-width: 850px;
+  margin: 20px auto 0;
+  padding: 20px 24px;
+
+  background: var(--color-accent-light);
+  border: 1.5px dashed var(--color-accent-dark);
+  border-radius: var(--radius-md);
+}
+
+.medical-information-notice h3 {
+  margin-bottom: 6px;
+
+  font-size: 14px;
+  color: var(--color-accent-dark);
+}
+
+.medical-information-notice p {
+  margin: 0;
+
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-body);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .articles-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
+
+}
+
+@media (max-width: 600px) {
+
+  .articles-header {
+    padding: 100px 15px 40px;
+  }
+
+  .articles-header h1 {
+    font-size: 32px;
+  }
+
+  .articles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .selected-article {
+    padding: 30px 24px 30px 30px;
+  }
+
 }

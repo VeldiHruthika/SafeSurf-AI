@@ -383,51 +383,39 @@ function Home({
 
       {[
         {
-          question: "What is SafeSurf AI?",
+          question: "Can SafeSurf AI diagnose my health condition?",
           answer:
-            "SafeSurf AI is an AI-powered healthcare platform designed to help users understand symptoms, medical reports and general health-related questions. It brings several healthcare support tools together in one place."
+            "No. SafeSurf AI offers AI-assisted insights based on the symptoms, body areas or reports you provide. It is not a medical diagnosis and should not replace evaluation by a qualified doctor."
         },
 
         {
-          question: "Can SafeSurf AI diagnose a medical condition?",
+          question: "How personalized are the insights and recommendations?",
           answer:
-            "No. SafeSurf AI provides general healthcare information and AI-assisted analysis. It is not a replacement for a qualified doctor or professional medical diagnosis."
+            "The Personalized Care Planner builds on the health profile, symptoms and reports you share to tailor lifestyle and healthcare guidance to your situation. The more detail you provide, the more relevant the guidance — though it remains general guidance, not a medical plan."
         },
 
         {
-          question: "How does the Symptom Analyzer work?",
+          question: "When should I seek immediate medical attention instead of using AI?",
           answer:
-            "You select the symptoms you are experiencing, and the system analyzes the selected information to identify possible health conditions that may be associated with those symptoms. The results are intended for informational purposes only."
+            "If you experience symptoms such as severe chest pain, difficulty breathing, sudden collapse or loss of consciousness, contact emergency services or go to the nearest hospital right away rather than relying on SafeSurf AI's tools."
         },
 
         {
-          question: "Can I upload my medical report?",
+          question: "Is my health information and uploaded report data private?",
           answer:
-            "Yes. The Report Analyzer is designed to help explain information contained in supported medical reports in simpler language. Users should always discuss important medical results with a qualified healthcare professional."
+            "SafeSurf AI is built with user privacy in mind. Uploaded reports and health details are used only to generate your results and recommendations. Avoid entering personal or highly sensitive information beyond what a feature actually needs."
         },
 
         {
-          question: "What can I ask the AI Health Assistant?",
+          question: "Can SafeSurf AI help me understand which specialist to consult?",
           answer:
-            "You can ask general health-related questions, request explanations of medical terms, learn about common symptoms, understand healthcare concepts and ask questions about how SafeSurf AI works."
+            "Yes. Based on your symptoms or analysis results, SafeSurf AI can point you toward the type of specialist that may be relevant, and the Specialists & Appointments section lets you find doctors and book a visit from there."
         },
 
         {
           question: "Does SafeSurf AI replace a doctor?",
           answer:
             "No. SafeSurf AI is a healthcare support and information platform. It should not be used as a substitute for professional medical advice, diagnosis or treatment."
-        },
-
-        {
-          question: "How does the pharmacy section work?",
-          answer:
-            "The pharmacy section allows users to explore healthcare products and access trusted external pharmacy platforms. Product availability, pricing, purchasing and delivery are handled by the respective external platform."
-        },
-
-        {
-          question: "Is my health information safe?",
-          answer:
-            "SafeSurf AI is designed with user privacy and security in mind. Users should avoid entering unnecessary personal or highly sensitive information unless it is required by a specific feature."
         }
       ].map((faq, index) => (
 
