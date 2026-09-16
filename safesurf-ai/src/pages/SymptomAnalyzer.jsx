@@ -1,5 +1,44 @@
 import { useState } from "react";
 import { symptoms } from "../data/symptoms";
+import { articles } from "../data/articles";
+
+// =====================================================
+// MATCH A CONDITION NAME TO A HEALTH ARTICLE
+//
+// Symptom Analyzer condition names (e.g. "Type 2 Diabetes")
+// don't always match an article title 1:1 (e.g. "Diabetes"),
+// so this tries an exact match first, then a loose
+// contains-either-way match. Returns null if nothing fits —
+// callers must not render a link when this returns null.
+// =====================================================
+
+function findArticleForCondition(conditionName) {
+  if (!conditionName) return null;
+
+  const normalize = (str) =>
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+
+  const target = normalize(conditionName);
+
+  const exactMatch = articles.find(
+    (article) => normalize(article.title) === target
+  );
+
+  if (exactMatch) return exactMatch;
+
+  const looseMatch = articles.find((article) => {
+    const title = normalize(article.title);
+    return target.includes(title) || title.includes(target);
+  });
+
+  return looseMatch || null;
+}
+
+const CONDITION_ARTICLE_DISCLAIMER =
+  "This information is generated based on the symptoms selected and is intended for educational purposes only. It does not provide a medical diagnosis.";
 
 function SymptomAnalyzer() {
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -327,7 +366,14 @@ function SymptomAnalyzer() {
                     <div className="condition-results">
 
                       {analysis.possible_conditions.map(
-                        (condition, index) => (
+                        (condition, index) => {
+
+                          const matchedArticle =
+                            condition.score >= 40
+                              ? findArticleForCondition(condition.name)
+                              : null;
+
+                          return (
 
                           <div
                             className="condition-result"
@@ -366,9 +412,41 @@ function SymptomAnalyzer() {
 
                             </div>
 
+                            {/* =========================================
+                                LEARN MORE — HEALTH ARTICLE LINK
+                                Only shown when the confidence is >= 40%
+                                AND a matching article actually exists.
+                                Links straight to the article's original
+                                source, not to the in-app Articles page.
+                            ========================================= */}
+
+                            {matchedArticle && (
+
+                              <div className="condition-learn-more">
+
+                                <p className="condition-pattern-note">
+                                  Your symptoms may be associated with a
+                                  possible condition pattern related to{" "}
+                                  {condition.name}. {CONDITION_ARTICLE_DISCLAIMER}
+                                </p>
+
+                                <a
+                                  href={matchedArticle.source}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="condition-article-link"
+                                >
+                                  Read About {matchedArticle.title} →
+                                </a>
+
+                              </div>
+
+                            )}
+
                           </div>
 
-                        )
+                          );
+                        }
                       )}
 
                     </div>

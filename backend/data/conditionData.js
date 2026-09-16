@@ -86,6 +86,25 @@ export const conditionData = [
     ],
   },
 
+  {
+    name: "Possible Asthma-related Symptoms",
+    specialist: "Pulmonologist",
+
+    symptoms: {
+      Wheezing: 1.0,
+      "Chest tightness": 1.0,
+      "Shortness of breath": 0.9,
+      Cough: 0.6,
+      "Chest discomfort": 0.4,
+    },
+
+    keySymptoms: [
+      "Wheezing",
+      "Chest tightness",
+      "Shortness of breath",
+    ],
+  },
+
   // =====================================================
   // ALLERGY / ENT
   // =====================================================
@@ -322,6 +341,29 @@ export const conditionData = [
       "Urinary discomfort",
       "Frequent urination",
       "Lower abdominal pain",
+    ],
+  },
+
+  {
+    name: "Possible Kidney Infection-related Symptoms",
+    specialist: "Urologist",
+
+    symptoms: {
+      Fever: 0.8,
+      Chills: 0.8,
+      "Side pain": 1.0,
+      "Back pain": 0.6,
+      "Burning urination": 0.5,
+      "Frequent urination": 0.4,
+      Nausea: 0.4,
+      Vomiting: 0.4,
+      Weakness: 0.3,
+    },
+
+    keySymptoms: [
+      "Fever",
+      "Chills",
+      "Side pain",
     ],
   },
 

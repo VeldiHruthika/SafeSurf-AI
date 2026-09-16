@@ -83,6 +83,13 @@ const [carePlanError, setCarePlanError] =
 const [isGeneratingCarePlan, setIsGeneratingCarePlan] =
   useState(false);
 
+// =====================================================
+// FOOD DETAIL POPUP STATE
+// =====================================================
+
+const [selectedFoodItem, setSelectedFoodItem] =
+  useState(null);
+
 
   // =====================================================
   // FORM STATE
@@ -3232,6 +3239,37 @@ const renderStepFour = () => {
 
         </div>
 
+        {/* WHY THIS NUTRITION GUIDANCE? */}
+
+        {carePlan.nutrition.whyThisGuidance?.length > 0 && (
+
+          <div className="care-plan-overview-note care-plan-why-guidance">
+
+            <h5>Why this nutrition guidance?</h5>
+
+            <p>This guidance considers the information you provided, including:</p>
+
+            <ul>
+              {carePlan.nutrition.whyThisGuidance.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+
+          </div>
+
+        )}
+
+        {/* BMI-INFORMED NUTRITION NOTE */}
+
+        {carePlan.nutrition.bmiInformedNote && (
+
+          <div className="care-plan-overview-note care-plan-bmi-note">
+            <h5>BMI-Informed Nutrition Note</h5>
+            <p>{carePlan.nutrition.bmiInformedNote}</p>
+          </div>
+
+        )}
+
         {carePlan.nutrition.guidance?.length > 0 && (
 
           <div className="care-plan-ai-list care-plan-ai-list-spaced-bottom">
@@ -3252,25 +3290,63 @@ const renderStepFour = () => {
           carePlan.nutrition.dinnerOptions?.length > 0 ||
           carePlan.nutrition.snackOptions?.length > 0) && (
 
-          <div className="care-plan-mealplan-grid">
+          <div className="care-plan-mealplan-grid care-plan-mealplan-grid-v2">
 
             {[
-              ["Breakfast", carePlan.nutrition.breakfastOptions],
-              ["Lunch", carePlan.nutrition.lunchOptions],
-              ["Snacks", carePlan.nutrition.snackOptions],
-              ["Dinner", carePlan.nutrition.dinnerOptions],
-            ].map(([label, items]) =>
+              ["Breakfast", "🌅", carePlan.nutrition.breakfastOptions],
+              ["Lunch", "🍲", carePlan.nutrition.lunchOptions],
+              ["Snacks", "🍎", carePlan.nutrition.snackOptions],
+              ["Dinner", "🌙", carePlan.nutrition.dinnerOptions],
+            ].map(([label, icon, items]) =>
               items?.length > 0 && (
 
-                <div className="care-plan-routine-card" key={label}>
+                <div className="care-plan-meal-card" key={label} data-meal={label.toLowerCase()}>
 
-                  <h4>{label}</h4>
+                  <div className="care-plan-meal-card-header">
+                    <span className="care-plan-meal-icon">{icon}</span>
+                    <h4>{label}</h4>
+                  </div>
 
-                  <ul>
-                    {items.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
+                  <div className="care-plan-food-chip-list">
+                    {items.map((item, i) =>
+                      typeof item === "string" ? (
+
+                        <div className="care-plan-food-chip" key={i}>
+                          <span className="care-plan-food-name">{item}</span>
+                        </div>
+
+                      ) : (
+
+                        <button
+                          type="button"
+                          className="care-plan-food-chip care-plan-food-chip-clickable"
+                          key={i}
+                          onClick={() =>
+                            setSelectedFoodItem({ ...item, mealLabel: label })
+                          }
+                        >
+
+                          <div className="care-plan-food-chip-main">
+                            <span className="care-plan-food-name">{item.food}</span>
+                            {item.servingSize && (
+                              <span className="care-plan-food-meta">{item.servingSize}</span>
+                            )}
+                          </div>
+
+                          <div className="care-plan-food-chip-side">
+                            {item.approxCalories && (
+                              <span className="care-plan-food-calories-pill">
+                                ~{item.approxCalories}
+                              </span>
+                            )}
+                            <span className="care-plan-food-chip-arrow">›</span>
+                          </div>
+
+                        </button>
+
+                      )
+                    )}
+                  </div>
 
                 </div>
 
@@ -3279,6 +3355,134 @@ const renderStepFour = () => {
 
           </div>
 
+        )}
+
+        {/* =========================================
+            FOOD ITEM DETAIL POPUP
+        ========================================= */}
+
+        {selectedFoodItem && (
+
+          <div
+            className="care-plan-food-modal-overlay"
+            onClick={() => setSelectedFoodItem(null)}
+          >
+
+            <div
+              className="care-plan-food-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+
+              <button
+                type="button"
+                className="care-plan-food-modal-close"
+                onClick={() => setSelectedFoodItem(null)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+
+              <span className="care-plan-food-modal-meal-tag">
+                {selectedFoodItem.mealLabel}
+              </span>
+
+              <h3>{selectedFoodItem.food}</h3>
+
+              {selectedFoodItem.servingSize && (
+                <p className="care-plan-food-modal-serving">
+                  Serving size: {selectedFoodItem.servingSize}
+                </p>
+              )}
+
+              <div className="care-plan-food-modal-macros">
+
+                {selectedFoodItem.approxCalories && (
+                  <div className="care-plan-food-modal-macro care-plan-food-modal-macro-calories">
+                    <span>Calories</span>
+                    <strong>{selectedFoodItem.approxCalories}</strong>
+                  </div>
+                )}
+
+                {selectedFoodItem.approxProtein && (
+                  <div className="care-plan-food-modal-macro">
+                    <span>Protein</span>
+                    <strong>{selectedFoodItem.approxProtein}</strong>
+                  </div>
+                )}
+
+                {selectedFoodItem.approxCarbs && (
+                  <div className="care-plan-food-modal-macro">
+                    <span>Carbohydrates</span>
+                    <strong>{selectedFoodItem.approxCarbs}</strong>
+                  </div>
+                )}
+
+                {selectedFoodItem.approxFat && (
+                  <div className="care-plan-food-modal-macro">
+                    <span>Fat</span>
+                    <strong>{selectedFoodItem.approxFat}</strong>
+                  </div>
+                )}
+
+              </div>
+
+              <p className="care-plan-food-modal-disclaimer">
+                All values are approximate estimates and may vary depending on portion size, ingredients, and preparation methods.
+              </p>
+
+            </div>
+
+          </div>
+
+        )}
+
+        {/* ESTIMATED DAILY CALORIE INTAKE */}
+
+        {carePlan.nutrition.estimatedDailyCalories && (
+
+          <div className="care-plan-daily-calories">
+
+            <h5>Estimated Daily Meal Intake</h5>
+
+            <div className="care-plan-daily-calories-rows">
+
+              {[
+                ["Breakfast", carePlan.nutrition.estimatedDailyCalories.breakfastRange],
+                ["Lunch", carePlan.nutrition.estimatedDailyCalories.lunchRange],
+                ["Snack", carePlan.nutrition.estimatedDailyCalories.snackRange],
+                ["Dinner", carePlan.nutrition.estimatedDailyCalories.dinnerRange],
+              ].map(([label, value]) =>
+                value && (
+                  <div className="care-plan-daily-calories-row" key={label}>
+                    <span>{label}</span>
+                    <span>{value}</span>
+                  </div>
+                )
+              )}
+
+            </div>
+
+            {carePlan.nutrition.estimatedDailyCalories.totalRange && (
+              <div className="care-plan-daily-calories-total">
+                <span>Estimated Total Daily Intake</span>
+                <strong>{carePlan.nutrition.estimatedDailyCalories.totalRange}</strong>
+              </div>
+            )}
+
+            {carePlan.nutrition.estimatedDailyCalories.disclaimer && (
+              <p className="care-plan-calorie-disclaimer">
+                {carePlan.nutrition.estimatedDailyCalories.disclaimer}
+              </p>
+            )}
+
+          </div>
+
+        )}
+
+        {carePlan.nutrition.calorieDisclaimer && (
+          <p className="care-plan-calorie-disclaimer">
+            {carePlan.nutrition.calorieDisclaimer}
+          </p>
         )}
 
         {carePlan.nutrition.foodsToLimit?.length > 0 && (
@@ -3416,6 +3620,34 @@ const renderStepFour = () => {
 
         )}
 
+        {/* WALKING CALORIE ESTIMATE */}
+
+        {carePlan.physicalActivity.walkingCalorieEstimate && (
+
+          <div className="care-plan-calorie-card">
+
+            <h5>Recommended Activity — Brisk Walking</h5>
+
+            <div className="care-plan-calorie-card-row">
+              <span>Duration</span>
+              <span>{carePlan.physicalActivity.walkingCalorieEstimate.durationMinutes} minutes</span>
+            </div>
+
+            <div className="care-plan-calorie-card-row">
+              <span>Estimated calories burned</span>
+              <strong>{carePlan.physicalActivity.walkingCalorieEstimate.estimatedCalories}</strong>
+            </div>
+
+            {carePlan.physicalActivity.walkingCalorieEstimate.disclaimer && (
+              <p className="care-plan-calorie-disclaimer">
+                {carePlan.physicalActivity.walkingCalorieEstimate.disclaimer}
+              </p>
+            )}
+
+          </div>
+
+        )}
+
       </div>
 
     )}
@@ -3484,6 +3716,38 @@ const renderStepFour = () => {
           ))}
 
         </div>
+
+        {/* APPROXIMATE SESSION ENERGY EXPENDITURE */}
+
+        {carePlan.yogaSession?.estimatedCalories && (
+
+          <div className="care-plan-calorie-card">
+
+            <h5>Approximate Session Energy Expenditure</h5>
+
+            <p className="care-plan-inline-text">
+              Based on your body weight and the approximate duration of the recommended yoga session:
+            </p>
+
+            <div className="care-plan-calorie-card-row">
+              <span>Session duration</span>
+              <span>{carePlan.yogaSession.durationMinutes} minutes</span>
+            </div>
+
+            <div className="care-plan-calorie-card-row">
+              <span>Estimated energy expenditure</span>
+              <strong>{carePlan.yogaSession.estimatedCalories}</strong>
+            </div>
+
+            {carePlan.yogaSession.disclaimer && (
+              <p className="care-plan-calorie-disclaimer">
+                {carePlan.yogaSession.disclaimer}
+              </p>
+            )}
+
+          </div>
+
+        )}
 
       </div>
 

@@ -13,6 +13,7 @@ export const symptoms = [
   "Back pain",
   "Bad breath",
   "Bloating",
+  "Blurred vision",
   "Body ache",
   "Breast tenderness",
   "Burning urination",
@@ -20,6 +21,7 @@ export const symptoms = [
   // C
   "Chills",
   "Chest discomfort",
+  "Chest tightness",
   "Cold",
   "Constipation",
   "Cough",
@@ -29,6 +31,8 @@ export const symptoms = [
   "Dandruff",
   "Dehydration",
   "Diarrhea",
+  "Difficulty speaking",
+  "Dizziness",
   "Dry eyes",
   "Dry hair",
   "Dry lips",
@@ -37,6 +41,7 @@ export const symptoms = [
 
   // E
   "Ear pain",
+  "Excessive thirst",
   "Eye irritation",
 
   // F
@@ -52,10 +57,12 @@ export const symptoms = [
   // H
   "Hair fall",
   "Headache",
+  "Hearing difficulty",
   "Heartburn",
   "Heavy menstrual bleeding",
 
   // I
+  "Increased hunger",
   "Indigestion",
   "Itchy eyes",
   "Itchy scalp",
@@ -82,6 +89,7 @@ export const symptoms = [
   "Nasal congestion",
   "Nausea",
   "Neck pain",
+  "Numbness on one side",
 
   // O
   "Oily skin",
@@ -89,6 +97,7 @@ export const symptoms = [
 
   // P
   "Pain",
+  "Paleness",
   "Period pain",
   "Periods",
   "Pimples",
@@ -102,10 +111,18 @@ export const symptoms = [
   // S
   "Sensitive skin",
   "Sensitive teeth",
+  "Sensitivity to light",
   "Shortness of breath",
+  "Side pain",
   "Skin irritation",
+  "Slurred speech",
+  "Sneezing",
   "Sore throat",
   "Stomach pain",
+  "Stress",
+  "Sudden severe headache",
+  "Sudden vision loss",
+  "Sudden weakness",
   "Swelling",
 
   // T
@@ -113,6 +130,7 @@ export const symptoms = [
   "Tooth sensitivity",
 
   // U
+  "Unexplained weight loss",
   "Urinary leakage",
   "Urinary discomfort",
 
@@ -122,6 +140,7 @@ export const symptoms = [
 
   // W
   "Weakness",
+  "Wheezing",
   "Wound",
   "Wounds",
 

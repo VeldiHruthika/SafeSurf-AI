@@ -376,6 +376,12 @@ body.dark-theme {
   background: var(--color-primary);
   color: #fff;
   font-size: 1rem;
+  transform-origin: center;
+  transition: transform var(--transition-fast);
+}
+
+.logo:hover .logo-mark {
+  animation: heartbeatLubDub 0.9s ease-in-out 1;
 }
 
 .nav-links {
@@ -554,6 +560,11 @@ body.dark-theme .logo-text {
   border-radius: var(--radius-tag);
   background: var(--color-primary);
   color: #fff;
+  transform-origin: center;
+}
+
+.footer-logo:hover .logo-icon {
+  animation: heartbeatLubDub 0.9s ease-in-out 1;
 }
 
 .logo-text {
@@ -779,6 +790,18 @@ body.dark-theme .logo-text {
   background: var(--color-accent-light);
   color: var(--color-accent-dark);
   font-size: 1.4rem;
+  transform-origin: center;
+  animation: heartbeatLubDub 1.4s ease-in-out infinite;
+}
+
+/* Real heartbeat rhythm: a sharp "lub", a softer "dub" right
+   after it, then a rest before the next beat — not a single
+   plain pulse. */
+@keyframes heartbeatLubDub {
+  0%, 45%, 100% { transform: scale(1); }
+  12%           { transform: scale(1.22); }
+  22%           { transform: scale(1); }
+  30%           { transform: scale(1.12); }
 }
 
 .health-card h3 {

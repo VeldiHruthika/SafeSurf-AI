@@ -1,3 +1,5 @@
+import { HeartPulse } from "lucide-react";
+
 function Navbar({
   openSymptomAnalyzer,
   openPharmacy,
@@ -20,7 +22,7 @@ function Navbar({
           onClick={goHome}
         >
           <span className="logo-mark">
-            ♥
+            <HeartPulse size={18} strokeWidth={2.4} />
           </span>
 
           <span>

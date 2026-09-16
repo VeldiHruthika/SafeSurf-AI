@@ -2127,6 +2127,462 @@ body.dark-theme .selected-condition {
   text-transform: capitalize;
 }
 
+/* =========================================================
+   MEAL CARDS v2 — clickable food chips + detail popup
+   Reuses the site's "clinical notebook" language: stamped
+   hard-offset shadows, clipped-corner tag radius, a colored
+   accent bar per meal instead of a soft gradient.
+========================================================= */
+
+.care-plan-mealplan-grid-v2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.care-plan-meal-card {
+  position: relative;
+  overflow: hidden;
+
+  padding: 18px 18px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.care-plan-meal-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
+}
+
+.care-plan-meal-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--color-primary);
+}
+
+.care-plan-meal-card[data-meal="snacks"]::before {
+  background: var(--color-accent);
+}
+
+.care-plan-meal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 6px 0 14px;
+}
+
+.care-plan-meal-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.care-plan-meal-card-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-ink);
+}
+
+.care-plan-food-chip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.care-plan-food-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+
+  width: 100%;
+  padding: 10px 12px;
+
+  border-radius: var(--radius-tag);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+
+  text-align: left;
+  color: inherit;
+}
+
+.care-plan-food-chip-clickable {
+  transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+}
+
+.care-plan-food-chip-clickable:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-lighter);
+  transform: translateX(2px);
+}
+
+.care-plan-food-chip-clickable:active {
+  transform: translateX(2px) scale(0.99);
+}
+
+.care-plan-food-chip-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.care-plan-food-chip .care-plan-food-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-ink);
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.care-plan-food-chip .care-plan-food-meta {
+  font-size: 10.5px;
+  color: var(--color-muted);
+}
+
+.care-plan-food-chip-side {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.care-plan-food-calories-pill {
+  padding: 3px 9px;
+  border-radius: var(--radius-tag);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.care-plan-food-chip-arrow {
+  font-size: 16px;
+  color: var(--color-muted);
+  transition: transform var(--transition-fast);
+}
+
+.care-plan-food-chip-clickable:hover .care-plan-food-chip-arrow {
+  transform: translateX(2px);
+  color: var(--color-primary);
+}
+
+/* Food detail popup */
+
+.care-plan-food-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  background: rgba(23, 35, 31, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.care-plan-food-modal {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+
+  padding: 26px 24px 22px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.care-plan-food-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--radius-tag);
+  background: var(--color-bg);
+  color: var(--color-body);
+  font-size: 13px;
+
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.care-plan-food-modal-close:hover {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.care-plan-food-modal-meal-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  margin-bottom: 10px;
+
+  border-radius: var(--radius-tag);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.care-plan-food-modal h3 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  padding-right: 24px;
+}
+
+.care-plan-food-modal-serving {
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  color: var(--color-muted);
+}
+
+.care-plan-food-modal-macros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  margin-bottom: 16px;
+}
+
+.care-plan-food-modal-macro {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+
+.care-plan-food-modal-macro span {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-muted);
+}
+
+.care-plan-food-modal-macro strong {
+  font-size: 14px;
+  color: var(--color-ink);
+}
+
+.care-plan-food-modal-macro-calories {
+  grid-column: 1 / -1;
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.care-plan-food-modal-macro-calories span {
+  color: var(--color-primary-dark);
+}
+
+.care-plan-food-modal-macro-calories strong {
+  font-size: 17px;
+  color: var(--color-primary-dark);
+}
+
+.care-plan-food-modal-disclaimer {
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+/* Per-food serving size + calories inside meal plan cards */
+
+.care-plan-food-item-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.care-plan-food-item-list li:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.care-plan-food-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-body);
+}
+
+.care-plan-food-meta {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-body);
+  opacity: 0.75;
+}
+
+.care-plan-food-calories {
+  color: var(--color-primary-dark);
+  opacity: 1;
+  font-weight: 700;
+}
+
+/* "Why this nutrition guidance?" + BMI-informed note */
+
+.care-plan-why-guidance,
+.care-plan-bmi-note {
+  margin-bottom: 18px;
+}
+
+.care-plan-why-guidance h5,
+.care-plan-bmi-note h5 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-primary-dark);
+}
+
+.care-plan-why-guidance p {
+  margin: 0 0 8px;
+}
+
+.care-plan-why-guidance ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.care-plan-why-guidance li {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-body);
+  margin-bottom: 4px;
+}
+
+.care-plan-bmi-note p {
+  margin: 0;
+}
+
+/* Estimated daily calorie summary */
+
+.care-plan-daily-calories {
+  padding: 16px 20px;
+  margin-top: 6px;
+
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+}
+
+.care-plan-daily-calories h5 {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-primary-dark);
+}
+
+.care-plan-daily-calories-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--color-border-strong);
+}
+
+.care-plan-daily-calories-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 12.5px;
+  color: var(--color-body);
+}
+
+.care-plan-daily-calories-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 13.5px;
+  color: var(--color-body);
+}
+
+.care-plan-daily-calories-total strong {
+  color: var(--color-primary-dark);
+  font-size: 15px;
+}
+
+.care-plan-calorie-disclaimer {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--color-body);
+  opacity: 0.75;
+}
+
+/* Walking / yoga session calorie cards */
+
+.care-plan-calorie-card {
+  padding: 16px 20px;
+  margin-top: 16px;
+
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  border: 1.5px solid var(--color-primary-dark);
+}
+
+.care-plan-calorie-card h5 {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-primary-dark);
+}
+
+.care-plan-calorie-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 12.5px;
+  color: var(--color-body);
+  margin-bottom: 6px;
+}
+
+.care-plan-calorie-card-row strong {
+  color: var(--color-primary-dark);
+  font-size: 14px;
+}
+
 .care-plan-ai-list-spaced {
   margin-top: 18px;
 }

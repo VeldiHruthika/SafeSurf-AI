@@ -441,6 +441,10 @@ Rules:
 - Explain medical terms simply.
 - Mention whether values are normal, low, or high.
 - Recommend consulting a doctor when necessary.
+- PRESERVE THE EXACT CERTAINTY LEVEL of the source report. If the report says "possible", "suspected", "concern for", "changes suggestive of", or similar hedged language, your summary/explanation must keep that same hedge — never upgrade it into a stated fact (e.g. never turn "possible aneurysm" into "aneurysm"). If the report does not use a specific diagnostic term at all, do not introduce one yourself.
+- NEVER give a single definitive cause for an abnormal value. Values like an elevated white blood cell count, elevated inflammatory markers, or similar nonspecific findings can result from many different things (infection, inflammation, physiological stress, medication, lab variation, and more) — list this as a range of possibilities, not one likely cause (e.g. NOT "this typically indicates infection or inflammation"; instead "this can occur for several reasons, including infection, inflammation, physiological stress, medications, and other causes").
+- For values that are inherently context-dependent (e.g. endometrial thickness depends on menstrual cycle day and menopausal status; many hormone levels depend on cycle timing), do NOT label them "Abnormal" based on the number alone. Use "status": "Requires clinical correlation" (or similar neutral wording) and note in "explanation" what context the value needs to be interpreted against.
+- If the report is a single isolated document, do not speculate about what other reports "might" show — only describe what is in front of you.
 `;
 
 // Minimum number of extracted characters before we trust pdf-parse's
@@ -753,6 +757,58 @@ app.post(
 
 
 // =====================================================
+// ACTIVITY CALORIE ESTIMATION (MET-based)
+//
+// Computed here in code — NOT left to the AI — so the
+// estimate is always consistent with this user's actual
+// body weight and a real duration, rather than a guessed
+// number. Standard formula:
+//   kcal = MET * 3.5 * weightKg / 200 * minutes
+// Result is rounded to the nearest 5 kcal and returned as
+// a range, never a single precise figure.
+// =====================================================
+
+function estimateActivityCalories(
+  metLow,
+  metHigh,
+  weightKg,
+  durationMinutes
+) {
+  if (
+    !weightKg ||
+    weightKg <= 0 ||
+    !durationMinutes ||
+    durationMinutes <= 0
+  ) {
+    return null;
+  }
+
+  const roundTo5 = (n) => Math.max(5, Math.round(n / 5) * 5);
+
+  const low = roundTo5(
+    (metLow * 3.5 * weightKg / 200) * durationMinutes
+  );
+
+  const high = roundTo5(
+    (metHigh * 3.5 * weightKg / 200) * durationMinutes
+  );
+
+  return `Approximately ${low}–${high} kcal`;
+}
+
+const EXERCISE_CALORIE_DISCLAIMER =
+  "Estimated calories burned are approximate and may vary depending on body weight, activity intensity, duration, fitness level, and individual metabolism.";
+
+const CALORIE_DISCLAIMER =
+  "Calorie values are approximate estimates and may vary depending on portion size, ingredients, and preparation methods.";
+
+const DAILY_CALORIE_DISCLAIMER =
+  "This is an estimate of the suggested meal examples only. It is not a personalized calorie target or a recommended calorie restriction.";
+
+const WEIGHT_MISSING_CALORIE_NOTE =
+  "A personalized calorie-burn estimate cannot be calculated because body weight was not provided.";
+
+// =====================================================
 // PERSONALIZED CARE PLAN API
 // =====================================================
 
@@ -1029,6 +1085,20 @@ SAFETY RULES
 18. Avoid phrases like "indicative of [condition]" or "symptoms of [condition]" when describing a symptom pattern — these read as a confirmed diagnosis even when unintended. Prefer "consistent with a pattern of [description]" (e.g. "consistent with a pattern of severe menstrual pain (dysmenorrhea)" rather than "indicative of severe dysmenorrhea").
 19. Avoid "to rule out [condition A] or [condition B]" when describing why an evaluation may help — "rule out" implies those specific diagnoses are already the leading suspects. Prefer framing evaluation purpose broadly first, then naming possible conditions as examples contingent on findings — e.g. "to help assess for possible hormonal, structural, or other gynecological causes, which may include conditions such as PCOS or endometriosis depending on clinical findings" rather than "to rule out structural or functional concerns like PCOS or endometriosis."
 20. The calculated BMI (see "Calculated BMI" in the profile above) is a derived metric, not a clinical diagnosis. Consider it alongside — not as a replacement for — any weight-related condition the user reported. If a user-reported weight-related condition seems to conflict with the calculated BMI (e.g. the BMI category doesn't obviously match a reported condition), do not present the reported condition as clinically confirmed or resolved by the BMI number either way. Use neutral wording (e.g. "your reported [condition] and calculated BMI category should both be considered by a clinician during assessment") and recommend professional assessment rather than reconciling the discrepancy yourself.
+21. "nutrition.bmiInformedNote" must be short, factual, and non-judgmental — BMI is one factor among many, never the only one. Never use harsh, blaming, or alarmist language (never "you need to lose weight", never "completely avoid fats", never any extreme dieting, rapid-weight-loss, or unsafe calorie-restriction language). For "Overweight range" / "Obesity range", close with an optional, non-instructional note that personalized weight management can be discussed with a healthcare professional. If BMI could not be calculated, set this field to an empty string.
+22. Never present a calorie value (food or activity) as an exact number — always a range, always labeled "approximately" or "estimated". This applies to every calorie figure in the report, including "estimatedMealPlanIntake" and any activity energy expenditure.
+23. "nutrition.whyThisGuidance" must only restate specific inputs actually present in this person's profile (BMI category, reported symptoms, activity level, health concerns) — never introduce a new claim or recommendation here.
+24. Every item inside "breakfastOptions", "lunchOptions", "dinnerOptions", and "snackOptions" must be an object with "food", "servingSize", "approxCalories" (a plausible range for that exact serving size — never assign a tiny number like 50 kcal to a full bowl-sized portion, and never a suspiciously precise single number like "287 calories"), and "approxProtein"/"approxCarbs"/"approxFat" (see Safety Rule 34).
+25. The user will pick ONE option from each of "breakfastOptions"/"lunchOptions"/"snackOptions"/"dinnerOptions" — never sum the per-item averages into a single figure presented as a fixed daily total. "nutrition.estimatedMealPlanIntake.combinedRange" must be phrased as depending on which options are chosen (e.g. "Approximately 1,100–1,400 kcal/day, depending on which meal options are selected"), derived from the realistic low-end and high-end combinations across the meals you generated — not an average dressed up as a total.
+26. Individual yoga poses must NEVER be assigned their own calorie value. Only the aggregate "yogaSession.durationMinutes" is calculated — never add a per-pose "caloriesBurned" field.
+27. SERIOUS CARDIAC / RESPIRATORY SAFETY SCREENING: If the user has reported a serious cardiovascular condition (e.g. Hypertrophic Cardiomyopathy, heart failure, arrhythmia, recent heart attack, uncontrolled/severe hypertension) or a serious respiratory condition (e.g. severe COPD, a recent severe asthma exacerbation), do NOT confidently prescribe an exercise duration or intensity. Set "physicalActivity.requiresMedicalClearance" to true, write a "physicalActivity.medicalClearanceNote" saying activity should be guided by their treating specialist first, and set "recommendedWalkingMinutes" to null so no walking duration or calorie figure is generated. Only mention walking conditionally (e.g. "if your cardiologist has approved walking, gentle activity may be considered according to their guidance") inside "currentRecommendation" — never as a confident standalone prescription.
+28. This applies even when a numeric calorie estimate cannot be produced: still report "yoga"/"currentRecommendation" content normally. Only the calorie/duration figures are withheld — never drop the rest of the section.
+29. CROSS-REPORT RECONCILIATION: If "Medical report analysis" contains more than one report and they appear to conflict (e.g. one report describes normal cardiac structure/function while another identifies a structural condition like HCM), do NOT present the normal-sounding report as if it contradicts or overrides the other. Explicitly connect them, e.g. "This particular test reported largely normal findings; these should be interpreted alongside the other report(s) that identified [condition], since different tests examine different things." Never let one report's "normal" reading go unexplained next to another report's abnormal finding — that reads as a contradiction to the user.
+30. CONDITION SPECIFICITY, NOT DUPLICATION: If the user's self-reported "Known conditions" list contains a vague/generic term (e.g. "Heart Disease", "High BP") and the "Medical report analysis" independently identifies a more specific version of the same thing (e.g. "Hypertrophic Cardiomyopathy", "Hypertension"), refer to the more specific, clinically precise term throughout your narrative — do not list both the vague and the specific term as if they were two separate conditions, and do not repeat an obviously duplicate pair (e.g. "Hypertension" and "High BP" are the same thing; use one).
+31. DIAGNOSED CONDITION vs. IMAGING/LAB FINDING vs. SYMPTOM — keep these three categories distinct in your wording throughout the report, never blur them: (a) something the user says they were formally diagnosed with, or a prior report explicitly states as a diagnosis, can be stated as a known/confirmed diagnosis; (b) an imaging or lab finding (e.g. "bulky uterus", "hemorrhagic follicle", a lab value flagged high/low) is a finding, not a diagnosis — describe it as "a report found/showed..." or "imaging identified..." rather than "diagnosed with"; (c) something the user is currently experiencing is a reported symptom, described as their observation. If the user's own wording blurs these (e.g. "I have been diagnosed with a bulky uterus"), restate it correctly using the source report's actual framing (e.g. "A previous pelvic ultrasound reported a bulky uterus with early adenomyosis changes") rather than repeating "diagnosed with" for what the report itself frames as an imaging finding.
+32. MEDICATION WORDING: For any medication the user describes as occasional/self-administered/not confirmed as a regular prescription, use neutral wording that preserves that uncertainty (e.g. "reportedly used intermittently for [reason]; current prescribing status and frequency should be confirmed with a clinician") rather than presenting it as an established, regularly prescribed regimen.
+33. Do not infer a specific underlying cause from a single nonspecific lab value in isolation (e.g. do not conclude infection from an elevated white blood cell count alone) — present it as one data point alongside the others, consistent with how "Medical report analysis" already hedges it.
+34. "approxProtein"/"approxCarbs"/"approxFat" on each food item must be plausible ranges for that specific food and serving size (never a suspiciously precise single number), and must roughly reconcile with "approxCalories" for that same item (protein/carbs ~4 kcal/g, fat ~9 kcal/g) — don't generate macro ranges that couldn't plausibly add up to the stated calorie range.
 
 =====================================================
 JSON FORMAT — return ONLY this structure, valid JSON, no markdown, no code fences
@@ -1068,10 +1138,27 @@ JSON FORMAT — return ONLY this structure, valid JSON, no markdown, no code fen
 
   "nutrition": {
     "guidance": ["General nutrition guidance point relevant to this profile"],
-    "breakfastOptions": ["Realistic Indian breakfast option"],
-    "lunchOptions": ["Realistic lunch option"],
-    "dinnerOptions": ["Realistic dinner option"],
-    "snackOptions": ["Realistic snack option"],
+    "bmiInformedNote": "One short, non-judgmental note tied to the user's BMI category — see Safety Rule 21. Empty string if BMI could not be calculated.",
+    "whyThisGuidance": ["Short bullet naming a specific input actually used to shape this guidance, e.g. 'Your BMI category (Overweight range)', 'Your reported symptoms', 'Your activity level' — factual restatements only, see Safety Rule 23"],
+    "breakfastOptions": [
+      { "food": "Realistic Indian breakfast option", "servingSize": "Concrete serving size, e.g. '1 medium bowl (approx. 200-250 g)'", "approxCalories": "Range string plausible for that serving, e.g. '250-350 kcal'", "approxProtein": "Range string, e.g. '6-8 g'", "approxCarbs": "Range string, e.g. '35-45 g'", "approxFat": "Range string, e.g. '5-8 g'" }
+    ],
+    "lunchOptions": [
+      { "food": "Realistic lunch option", "servingSize": "Concrete serving size", "approxCalories": "Range string", "approxProtein": "Range string", "approxCarbs": "Range string", "approxFat": "Range string" }
+    ],
+    "dinnerOptions": [
+      { "food": "Realistic dinner option", "servingSize": "Concrete serving size", "approxCalories": "Range string", "approxProtein": "Range string", "approxCarbs": "Range string", "approxFat": "Range string" }
+    ],
+    "snackOptions": [
+      { "food": "Realistic snack option", "servingSize": "Concrete serving size", "approxCalories": "Range string", "approxProtein": "Range string", "approxCarbs": "Range string", "approxFat": "Range string" }
+    ],
+    "estimatedMealPlanIntake": {
+      "breakfastRange": "e.g. 'Approximately 300 kcal' — consistent with the breakfastOptions items above",
+      "lunchRange": "e.g. 'Approximately 550 kcal'",
+      "snackRange": "e.g. 'Approximately 150 kcal'",
+      "dinnerRange": "e.g. 'Approximately 450 kcal'",
+      "combinedRange": "A range reflecting that the user picks ONE option per meal, e.g. 'Approximately 1,100-1,400 kcal/day, depending on which meal options are selected' — never a single fixed total (see Safety Rule 25)"
+    },
     "foodsToLimit": ["Specific food/group to limit, with brief reason if relevant"],
     "conditionSpecificGuidance": [
       { "condition": "Condition or deficiency name", "encourage": ["Food to favor"], "limit": ["Food to limit"] }
@@ -1079,15 +1166,22 @@ JSON FORMAT — return ONLY this structure, valid JSON, no markdown, no code fen
   },
 
   "physicalActivity": {
-    "currentRecommendation": ["What activity level is appropriate right now, given this person's profile and any limitations — specific, not generic"],
+    "currentRecommendation": ["What activity level is appropriate right now, given this person's profile and any limitations — specific, not generic. If requiresMedicalClearance is true, mention walking only conditionally here, never as a confident prescription (Safety Rule 27)."],
     "beginnerPlan": ["Concrete starting-point activity for the first 1-2 weeks"],
     "progression": ["How to build up from there over the following weeks, once the starting level feels manageable"],
-    "precautions": ["Activity to avoid or modify, with a brief reason — only if medically relevant"]
+    "precautions": ["Activity to avoid or modify, with a brief reason — only if medically relevant"],
+    "requiresMedicalClearance": "Boolean — true if the user reported a serious cardiac or respiratory condition per Safety Rule 27, otherwise false",
+    "medicalClearanceNote": "Only if requiresMedicalClearance is true: a short note that physical activity should be guided by their treating specialist first. Empty string otherwise.",
+    "recommendedWalkingMinutes": "Integer number of minutes (e.g. 20-40) for a reasonable walking session for this person, or null if walking is not currently appropriate given reported conditions OR if requiresMedicalClearance is true. Do NOT estimate calories yourself — the app computes that from this duration and the user's body weight (Safety Rule 22)."
   },
 
   "yoga": [
     { "name": "Actual pose name (e.g. Balasana, Supta Baddha Konasana, Cat-Cow, Bhujangasana)", "duration": "e.g. 30-60 seconds x 2-3 rounds", "frequency": "e.g. Daily, or 3-4 times a week", "purpose": "What it may support", "precaution": "Who should avoid/modify it, or 'None specific to your profile.'" }
   ],
+
+  "yogaSession": {
+    "durationMinutes": "Integer — total minutes across the WHOLE yoga plan above (sum of every pose's duration x rounds), so it is arithmetically consistent with the poses you actually generated. Do NOT estimate calories yourself (Safety Rule 22)."
+  },
 
   "sleepAndRecovery": ["Sleep or recovery suggestion"],
 
@@ -1126,7 +1220,8 @@ SECTION RULES
 - "yoga": include 4-6 poses appropriate after safety filtering, or fewer gentle/breathing-only entries if the profile suggests caution is warranted. Always fill in "duration" and "frequency" for each pose — never leave them blank.
 - "physicalActivity": "currentRecommendation" should reflect what's appropriate right now; "beginnerPlan" is concrete first-1-2-weeks steps; "progression" is how to build up after that. Do not skip "progression" just because the plan is simple — even a modest progression (e.g. "increase daily walking by 5 minutes every week until reaching 30 minutes") is more useful than a flat instruction repeated forever.
 - If height, weight, waist circumference, dietary preference, or budget were not provided and are relevant to giving a precise calorie/weight target, say so explicitly in "physicalActivity" or "nutrition" guidance (e.g. "A precise calorie target would require your height, weight, and dietary preferences — here is general guidance in the meantime") rather than inventing a specific number.
-- Every meal-plan array ("breakfastOptions", "lunchOptions", "dinnerOptions", "snackOptions") must contain at least 3 distinct, affordable, realistic Indian options — not just one. Vary them (e.g. don't repeat "oats" as the only breakfast) and keep them appropriate to the user's stated financial level AND dietary preference (see Safety Rule 9).
+- Every meal-plan array ("breakfastOptions", "lunchOptions", "dinnerOptions", "snackOptions") must contain at least 3 distinct, affordable, realistic Indian options — not just one, each as a {food, servingSize, approxCalories} object (see Safety Rule 24). Vary them (e.g. don't repeat "oats" as the only breakfast) and keep them appropriate to the user's stated financial level AND dietary preference (see Safety Rule 9).
+- "physicalActivity.recommendedWalkingMinutes" and "yogaSession.durationMinutes" should only be omitted/null if the activity itself is not currently appropriate for this profile, or (for walking) if "requiresMedicalClearance" is true — otherwise always provide a concrete integer.
 - Do not repeat the content of "healthAssessment" anywhere else in the report (not in "primaryConcerns", not anywhere). Each section should add new information, not restate the same paragraph in different words.
 
 Return JSON only. No markdown. No code fences. No text before or after the JSON object.
@@ -1219,6 +1314,97 @@ Return JSON only. No markdown. No code fences. No text before or after the JSON 
         error:
           "SafeSurf AI returned an invalid care plan.",
       });
+    }
+
+    // =================================================
+    // POST-PROCESS: ACTIVITY CALORIE ESTIMATES
+    // Computed here from the user's actual body weight,
+    // not by the AI — keeps figures consistent instead
+    // of an AI-guessed number (Safety Rules 22, 26).
+    // Never prescribes a duration for profiles flagged as
+    // needing medical clearance (Safety Rule 27), and
+    // never silently drops the plan/session info just
+    // because a calorie figure can't be computed.
+    // =================================================
+
+    const hasValidWeight = !!weightNum && weightNum > 0;
+
+    if (carePlan.physicalActivity) {
+      const needsClearance =
+        carePlan.physicalActivity.requiresMedicalClearance === true;
+
+      const walkingMinutes = Number(
+        carePlan.physicalActivity.recommendedWalkingMinutes
+      );
+
+      if (!needsClearance && walkingMinutes > 0) {
+        if (hasValidWeight) {
+          const walkingEstimate = estimateActivityCalories(
+            3.3,
+            4.8,
+            weightNum,
+            walkingMinutes
+          );
+
+          if (walkingEstimate) {
+            carePlan.physicalActivity.walkingCalorieEstimate = {
+              durationMinutes: walkingMinutes,
+              estimatedCalories: walkingEstimate,
+              disclaimer: EXERCISE_CALORIE_DISCLAIMER,
+            };
+          }
+        } else {
+          carePlan.physicalActivity.walkingCalorieEstimate = {
+            durationMinutes: walkingMinutes,
+            estimatedCalories: null,
+            note: WEIGHT_MISSING_CALORIE_NOTE,
+          };
+        }
+      }
+
+      if (needsClearance) {
+        carePlan.physicalActivity.walkingCalorieEstimate = null;
+      }
+
+      delete carePlan.physicalActivity.recommendedWalkingMinutes;
+    }
+
+    if (carePlan.yogaSession) {
+      const yogaMinutes = Number(
+        carePlan.yogaSession.durationMinutes
+      );
+
+      if (hasValidWeight) {
+        const yogaEstimate = estimateActivityCalories(
+          2.3,
+          3.0,
+          weightNum,
+          yogaMinutes
+        );
+
+        if (yogaEstimate) {
+          carePlan.yogaSession.estimatedCalories = yogaEstimate;
+          carePlan.yogaSession.disclaimer = EXERCISE_CALORIE_DISCLAIMER;
+        }
+      } else if (yogaMinutes > 0) {
+        carePlan.yogaSession.estimatedCalories = null;
+        carePlan.yogaSession.note = WEIGHT_MISSING_CALORIE_NOTE;
+      }
+    }
+
+    // =================================================
+    // POST-PROCESS: NUTRITION DISCLAIMERS
+    // Hardcoded exact wording so it is always present
+    // regardless of what the AI produced.
+    // =================================================
+
+    if (carePlan.nutrition) {
+      carePlan.nutrition.calorieDisclaimer = CALORIE_DISCLAIMER;
+
+      if (carePlan.nutrition.estimatedMealPlanIntake) {
+        carePlan.nutrition.estimatedMealPlanIntake.disclaimer =
+          DAILY_CALORIE_DISCLAIMER;
+      }
     }
 
     // =================================================
